@@ -7,9 +7,9 @@ from api.v1.models.user import User
 class File(BaseModel, db.Model):
     __tablename__ = 'files'
 
-    id = db.Column(db.Integer, primary_key=True)
-    instance_id = db.Column(db.Integer, db.ForeignKey(Instance.id), nullable=False)
+    id = db.Column(db.String(64), primary_key=True)
+    instance_id = db.Column(db.String(64), db.ForeignKey(Instance.id), nullable=False)
     path = db.Column(db.String(255), nullable=False)
     size = db.Column(db.Integer, nullable=False)
     md5 = db.Column(db.String(32), nullable=False)
-    owner_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
+    owner_id = db.Column(db.String(64), db.ForeignKey(User.id), nullable=False)

@@ -7,8 +7,7 @@ from typing import Dict
 
 from api.v1.views import app_views
 from api.v1.models.user import User
-# from api.v1.utils.db import dbClient
-dbClient = None
+from api.v1.utils.database import db
 from api.v1.views.auth.decorator import authorize
 
 
@@ -48,7 +47,7 @@ def reset_email(email):
     """Reset the user's email"""
     try:
 
-        user = dbClient.filter_by(email=email)
+        user = db.session.query(User).filter_by(email=email).first()
         password: str = request.get_json()['password']
         user.password = generate_password_hash(password)
         user.save()

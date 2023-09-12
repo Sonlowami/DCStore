@@ -43,8 +43,11 @@ class BaseModel(db.Model):
                 dict[key] = value.strftime('%Y-%m-%dT%H:%M:%S.%f')
             else:
                 dict[key] = value
-        if "_sa_instance_state" in dict:
+        try:
             del dict["_sa_instance_state"]
+            del dict['password']
+        except KeyError:
+            pass
         return dict
     
     def __str__(self):

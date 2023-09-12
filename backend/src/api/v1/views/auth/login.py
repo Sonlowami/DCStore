@@ -8,12 +8,11 @@ from os import getenv
 from typing import Dict
 
 from api.v1.models.user import User
-# from api.v1.utils.db import dbClient
-dbClient = None
+from api.v1.utils.database import db
 from api.v1.views import app_views
 
 
-SECRET_KEY = getenv('SECRET_KEY')
+SECRET_KEY: str = getenv('SECRET_KEY')
 
 
 @app_views.post('/login', strict_slashes=False)
@@ -24,9 +23,8 @@ def login() -> str:
         valid_data: Dict = validate_login(user_data)
         email: str = valid_data['email']
         password: str = valid_data['password']
-        user: User = dbClient.filter_by(email=email)
-        print(user.return_value)
-        print(check_password_hash.return_value)
+        user: User = db.session.query(User).filter_by(email=email).first()
+
         if check_password_hash(user.password, password):
             exp: datetime.Time = datetime.datetime.now() + datetime.timedelta(hours=24)
             token: str = jwt.encode({'email': email, 'exp': exp}, SECRET_KEY, algorithm='HS256')

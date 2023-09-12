@@ -1,11 +1,15 @@
 from flask import Flask, jsonify
-from flask_migrate import Migrate
+from flask_mail import Mail
+from flask_cors import CORS
+from flasgger import Swagger
+
 from sqlalchemy import text
 from os import getenv
 from dotenv import load_dotenv
 
 from api.v1.utils.config import Config
 from api.v1.utils.database import db
+from api.v1.views import app_views
 from api.v1.models import *
 
 
@@ -15,11 +19,17 @@ app = Flask(__name__)
 
 # Configure app
 app.url_map.strict_slashes = False
+app.register_blueprint(app_views)
 app.config.from_object(Config)
 
-# Initialize database with migrations
+# Initialize database
 db.init_app(app)
-migrate = Migrate(app, db)
+# Initialize mail
+mail = Mail(app)
+# Initialize Swagger
+Swagger(app)
+# Initialize CORS
+CORS(app)
 
 
 @app.route("/")

@@ -1,14 +1,66 @@
-from api.v1.utils.database import db
-from api.v1.models.base_model import BaseModel
+from jsonschema import validate
+from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
+
+from api.v1.utils.database import mongo
 
 
-class User(BaseModel, db.Model):
-    __tablename__ = 'users'
+class User:
+    """User class for mongodb"""
 
-    id = db.Column(db.String(64), primary_key=True)
-    first_name = db.Column(db.String(255), nullable=False)
-    last_name = db.Column(db.String(255), nullable=False)
-    email = db.Column(db.String(255), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(255), nullable=False)
-    files = db.relationship('File', backref='user', lazy=True)
+    def __init__(self, *args, **kwargs):
+        """Initialize User class"""
+        self.email = kwargs.get('email')
+        self.password = kwargs.get('password')
+        self.username = kwargs.get('username')
+        self.fullname = kwargs.get('fullname')
+        self.role = kwargs.get('role')
+        self.verify_schema()
+
+    def verify_schema(self):
+        """Verify user schema"""
+        USER_SCHEMA = {
+            "type": "object",
+            "properties": {
+                "email": {"type": "string"},
+                "password": {"type": "string"},
+                "username": {"type": "string"},
+                "fullname": {"type": "string"},
+                "role": {"type": "string"},
+            },
+            "required": ["email", "password", "username", "fullname", "role"]
+        }
+        # Validate user schema
+        validate(instance=self.__dict__, schema=USER_SCHEMA)
+
+    def save(self):
+        """Save user to mongodb"""
+        user = {
+            "email": self.email,
+            "password_hash": generate_password_hash(self.password), # type: ignore
+            "username": self.username,
+            "fullname": self.fullname,
+            "role": self.role,
+            "created_at": datetime.now(),
+            "updated_at": datetime.now(),
+        }
+        return mongo.db.users.insert_one(user) # type: ignore
+
+    @staticmethod
+    def get_user(email):
+        """Get user from mongodb"""
+        user = mongo.db.users.find_one({"email": email}) # type: ignore
+        return user
+
+    @staticmethod
+    def get_user_by_id(id):
+        """Get user from mongodb"""
+        user = mongo.db.users.find_one({"_id": id}) # type: ignore
+        return user
+    
+    @staticmethod
+    def get_users():
+        """Get users from mongodb"""
+        users = mongo.db.users.find() # type: ignore
+        print(users)
+        return users

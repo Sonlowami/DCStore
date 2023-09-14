@@ -22,8 +22,6 @@ MAIL_USE_SSL = getenv('MAIL_USE_SSL', 'false').lower() == 'true'
 
 class Config:
     SECRET_KEY = getenv('SECRET_KEY', '')
-    SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}'
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAIL_SERVER = MAIL_SERVER
     MAIL_PORT = MAIL_PORT
     MAIL_USERNAME = MAIL_USERNAME
@@ -31,4 +29,5 @@ class Config:
     MAIL_USE_TLS = MAIL_USE_TLS
     MAIL_USE_SSL = MAIL_USE_SSL
     SWAGGER = {'title': 'DCStore API Documentation', 'uiversion': 3}
-
+    DEBUG = getenv('DEBUG', False)
+    MONGO_URI = f'mongodb://{MONGO_HOST}:{MONGO_PORT}/{MONGO_DBNAME}'

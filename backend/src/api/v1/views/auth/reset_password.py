@@ -14,8 +14,8 @@ from api.v1.views.auth.decorator import authorize
 SECRET_KEY = getenv('SECRET_KEY')
 
 
-@app_views.post('/forgot-password', strict_slashes=False)
-def verify_email():
+@app_views.post('/forgot-password')
+def verify_email() -> str:
     """Send an email containing authentication information to the user"""
     from api.v1.app import mail
 
@@ -41,13 +41,13 @@ def verify_email():
         return jsonify({'error': e}), 500
 
 
-@app_views.post('/reset_password', strict_slashes=False)
+@app_views.post('/reset_password')
 @authorize
-def reset_email(email):
+def reset_email(email: str) -> str:
     """Reset the user's email"""
     try:
 
-        user = db.session.query(User).filter_by(email=email).first()
+        user: User = db.session.query(User).filter_by(email=email).first()
         password: str = request.get_json()['password']
         user.password = generate_password_hash(password)
         user.save()

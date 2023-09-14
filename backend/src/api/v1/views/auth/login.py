@@ -15,7 +15,7 @@ from api.v1.views import app_views
 SECRET_KEY: str = getenv('SECRET_KEY')
 
 
-@app_views.post('/login', strict_slashes=False)
+@app_views.post('/login')
 def login() -> str:
     """Log a user inside the system"""
     try:

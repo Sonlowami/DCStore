@@ -9,13 +9,13 @@ from api.v1.models.user import User
 from api.v1.views import app_views
 
 
-@app_views.post('/register', strict_slashes=False)
+@app_views.post('/register')
 def register() -> str:
     """Register a new user"""
     try:
         user_data: Dict = request.get_json()
         valid_data: Dict = validate_info(user_data)
-        user = User(**valid_data)
+        user: User = User(**valid_data)
         user.save()
         return jsonify({'message': 'Account created successfully!'}), 201
 
@@ -33,7 +33,7 @@ def validate_info(user_input: Dict) -> Dict:
     last_name: str = user_input['last_name']
     email: str = user_input['email']
     password: str = hash_password(user_input['password'])
-    birthday: Date = create_date(user_input['birthday'])
+    birthday: datetime.date = create_date(user_input['birthday'])
     category: str = user_input['category']
 
     if not isinstance(first_name, str) or not isinstance(last_name, str):

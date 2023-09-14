@@ -8,7 +8,7 @@ from os import getenv
 from typing import Dict
 
 from api.v1.models.user import User
-from api.v1.utils.database import db
+from api.v1.utils.database import mongo
 from api.v1.views import app_views
 
 
@@ -23,7 +23,8 @@ def login() -> str:
         valid_data: Dict = validate_login(user_data)
         email: str = valid_data['email']
         password: str = valid_data['password']
-        user: User = db.session.query(User).filter_by(email=email).first()
+        users = mongo['users']
+        user: users.find_one({'email': email})
 
         if check_password_hash(user.password, password):
             exp: datetime.Time = datetime.datetime.now() + datetime.timedelta(hours=24)

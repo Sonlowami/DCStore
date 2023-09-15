@@ -17,3 +17,7 @@ vv/
 *.log
 *.swp
 *.swo
+*.dcm
+
+# Dicom folder
+dicoms/

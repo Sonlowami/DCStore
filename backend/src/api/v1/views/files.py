@@ -16,22 +16,23 @@ DICOM_FOLDER = os.getenv('DICOM_FOLDER', '/tmp/dicom_files')
 @app_views.route('/files', methods=['POST'])
 def upload_file():
     """Upload file to mongodb"""
-    file = request.files.get('file')
-    if not file:
-        return jsonify({'error': 'No file provided'}), 400
-    try:
-        data = File.extract_metadata_from_dicom(file)
-        if not data:
+    files = request.files.values()
+    for file in files:
+        if not file:
+            return jsonify({'error': 'No file provided'}), 400
+        try:
+            extracted_data = File.extract_metadata_from_dicom(file)
+            if not extracted_data:
+                return jsonify({'error': 'Invalid file'}), 400
+            new_file = File(**extracted_data)
+            if new_file.filepath:
+                # Create folder if not exists
+                if not os.path.exists(DICOM_FOLDER):
+                    os.makedirs(DICOM_FOLDER)
+                file.save(new_file.filepath)
+            else:
+                return jsonify({'error': 'Something went wrong!'}), 500
+            new_file.save()
+            return jsonify({'message': 'File uploaded successfully'}), 201
+        except ValidationError:
             return jsonify({'error': 'Invalid file'}), 400
-        new_file = File(**data)
-        if new_file.filepath:
-            # Create folder if not exists
-            if not os.path.exists(DICOM_FOLDER):
-                os.makedirs(DICOM_FOLDER)
-            file.save(new_file.filepath)
-        else:
-            return jsonify({'error': 'Something went wrong!'}), 500
-        new_file.save()
-        return jsonify({'message': 'File uploaded successfully'}), 201
-    except ValidationError:
-        return jsonify({'error': 'Invalid file'}), 400

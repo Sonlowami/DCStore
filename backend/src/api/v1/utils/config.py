@@ -5,11 +5,9 @@ from os import getenv
 load_dotenv()
 
 # Database configuration
-MYSQL_HOST = getenv('MYSQL_HOST', '')
-MYSQL_PORT = int(getenv('MYSQL_PORT', '3306'))
-MYSQL_USER = getenv('MYSQL_USER', '')
-MYSQL_PASSWORD = getenv('MYSQL_PASSWORD', '')
-MYSQL_DB = getenv('MYSQL_DB', '')
+MONGO_HOST = getenv('MONGO_HOST', 'localhost')
+MONGO_PORT = int(getenv('MONGO_PORT', '27017'))
+MONGO_DBNAME = getenv('MONGO_DBNAME', 'dcstore')
 
 # Mail configuration
 MAIL_SERVER = getenv('MAIL_SERVER', '')

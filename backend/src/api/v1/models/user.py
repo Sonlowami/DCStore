@@ -59,8 +59,7 @@ class User:
         return user
     
     @staticmethod
-    def get_users():
-        """Get users from mongodb"""
-        users = mongo.db.users.find() # type: ignore
-        print(users)
-        return users
+    def get_user_by_username(username):
+        """Get user from mongodb"""
+        user = mongo.db.users.find_one({"username": username}) # type: ignore
+        return user

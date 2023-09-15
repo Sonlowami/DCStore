@@ -9,7 +9,6 @@ from dotenv import load_dotenv
 from api.v1.utils.config import Config
 from api.v1.utils.database import mongo
 from api.v1.views import app_views
-from api.v1.models import *
 
 
 load_dotenv()
@@ -24,7 +23,7 @@ app.config.from_object(Config)
 # Initialize database
 mongo.init_app(app)
 # Initialize mail
-mail = Mail(app)
+# mail = Mail(app)  # TODO: Uncomment this line when ready
 # Initialize Swagger
 Swagger(app)
 # Initialize CORS
@@ -39,5 +38,4 @@ def hello() -> str:
 if __name__ == "__main__":
     host = getenv('HOST', '0.0.0.0')
     port = getenv('PORT', 5000)
-    debug = getenv('DEBUG', True)
-    app.run(host=host, port=int(port), debug=bool(debug))
+    app.run(host=host, port=int(port))

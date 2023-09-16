@@ -6,11 +6,9 @@ import os
 
 from api.v1.views import app_views
 from api.v1.models import File
-from api.v1.utils.zipping import zip_file
+from api.v1.utils.zipping import zip_file, extract_and_return_dicom_list
 from api.v1.utils.caching import redis_client
 from api.v1.utils.database import mongo
-from api.v1.utils.zip import extract_and_return_dicom_list
-
 
 load_dotenv()
 

@@ -34,5 +34,6 @@ def upload_file():
                 return jsonify({'error': 'Something went wrong!'}), 500
             new_file.save()
             return jsonify({'message': 'File uploaded successfully'}), 201
-        except ValidationError:
+        except ValidationError as e:
+            print(e)
             return jsonify({'error': 'Invalid file'}), 400

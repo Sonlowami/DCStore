@@ -1,3 +1,4 @@
+from bson.objectid import ObjectId
 from flask import request, jsonify
 from api.v1.models.user import User
 from api.v1.models.file import File
@@ -8,6 +9,7 @@ from api.v1.views import app_views
 
 
 @app_views.get('/studies')
+@authorize
 def get_studies_by_me(email: str, page: int = 0) -> str:
     """Get studies of the patient or done by the doctor"""
     user: User = User.get_user(email)
@@ -19,7 +21,20 @@ def get_studies_by_me(email: str, page: int = 0) -> str:
             {'$limit': 20},
             {'$skip': (page * 20)}
         ]
-        studies = mongo.db.users.aggregate(comditions)
+        studies = mongo.db.files.aggregate(comditions)
         return jsonify(studies), 200
+    except Exception as e:
+        return jsonify({'error': e}), 500
+
+
+@app_views.get('/studies/<id>')
+@authorize
+def get_one_study(email: str, id: str) -> str:
+    """Get one study with the given id"""
+    try:
+        user = User.get_user(email)
+        study = mongo.db.files.find_one({'metadata.studyInstanceUID': id})
+        if id == str(study.uploader_id):
+            return jsonify(study), 200
     except Exception as e:
         return jsonify({'error': e}), 500

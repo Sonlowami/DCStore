@@ -6,6 +6,8 @@ import os
 
 from api.v1.views import app_views
 from api.v1.models import File
+from api.v1.utils.zipping import zip_file
+from api.v1.utils.caching import redis_client
 
 
 load_dotenv()
@@ -24,6 +26,7 @@ def upload_file():
             extracted_data = File.extract_metadata_from_dicom(file)
             if not extracted_data:
                 return jsonify({'error': 'Invalid file'}), 400
+            # extracted_data['uploader_id'] = user._id
             new_file = File(**extracted_data)
             if new_file.filepath:
                 # Create folder if not exists
@@ -33,6 +36,14 @@ def upload_file():
             else:
                 return jsonify({'error': 'Something went wrong!'}), 500
             new_file.save()
+            # generate a zip for all
+            zip_folder = DICOM_FOLDER + '/zip'
+            if not os.path.exists(zip_folder):
+                os.makedirs(zip_folder)
+            output_zip = f"{zip_folder}/{new_file.seriesInstanceUID}.zip"
+            zip_file(output_zip, file)
+            redis_client.set(new_file.seriesInstanceUID, output_zip)
+
             return jsonify({'message': 'File uploaded successfully'}), 201
         except ValidationError:
             return jsonify({'error': 'Invalid file'}), 400

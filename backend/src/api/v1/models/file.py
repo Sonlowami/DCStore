@@ -20,8 +20,9 @@ class File:
         self.filename = kwargs.get('filename')
         self.filepath = kwargs.get('filepath')
         self.filesize = kwargs.get('filesize')
-        self.patient_owners = kwargs.get('patient_owner')
+        self.patient_owner = kwargs.get('patient_owner')
         self.physician_owners = kwargs.get('physician_owners')
+        self.uploader_id = kwargs.get('uploader_id')
         self.metadata = kwargs.get('metadata')
         self.verify_schema()
     
@@ -41,7 +42,7 @@ class File:
                 "physician_owners": {"type": "array"},
                 "metadata": {"type": "object"}
             },
-            # "required": ["filename", "filepath", "patient_owners", "physician_owners", "metadata"]
+            # "required": ["filename", "filepath", "patient_owner", "physician_owners", "metadata"]
             "required": ["filename", "filepath", "metadata"]
         }
         validate(instance=self.__dict__, schema=FILE_SCHEMA)
@@ -53,7 +54,7 @@ class File:
             "filepath": self.filepath,
             "filesize": self.filesize,
             "uploadDate": datetime.now(),
-            "patient_owners": self.patient_owner,
+            "patient_owner": self.patient_owner,
             "physician_owners": self.physician_owners,
             "metadata": self.metadata
         }

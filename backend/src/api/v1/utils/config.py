@@ -17,6 +17,11 @@ MAIL_PASSWORD = getenv('MAIL_PASSWORD', '')
 MAIL_USE_TLS = getenv('MAIL_USE_TLS', 'true').lower() == 'true'
 MAIL_USE_SSL = getenv('MAIL_USE_SSL', 'false').lower() == 'true'
 
+# redis configuration
+REDIS_HOST = getenv('REDIS_HOST', 'localhost')
+REDIS_PORT = int(getenv('REDIS_PORT', '6379'))
+REDIS_DB = int(getenv('REDIS_DB', '0'))
+
 
 class Config:
     SECRET_KEY = getenv('SECRET_KEY', '')
@@ -29,3 +34,4 @@ class Config:
     SWAGGER = {'title': 'DCStore API Documentation', 'uiversion': 3}
     DEBUG = getenv('DEBUG', False)
     MONGO_URI = f'mongodb://{MONGO_HOST}:{MONGO_PORT}/{MONGO_DBNAME}'
+    REDIS_URI = f'redis://{REDIS_HOST}:{REDIS_PORT/{REDIS_DB}}'

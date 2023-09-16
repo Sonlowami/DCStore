@@ -20,9 +20,8 @@ class File:
         self.filename = kwargs.get('filename')
         self.filepath = kwargs.get('filepath')
         self.filesize = kwargs.get('filesize')
-        self.patient_owner = kwargs.get('patient_owner')
+        self.patient_owners = kwargs.get('patient_owner')
         self.physician_owners = kwargs.get('physician_owners')
-        self.uploader_id = kwargs.get('uploader_id')
         self.metadata = kwargs.get('metadata')
         self.verify_schema()
     
@@ -54,7 +53,7 @@ class File:
             "filepath": self.filepath,
             "filesize": self.filesize,
             "uploadDate": datetime.now(),
-            "patient_owner": self.patient_owner,
+            "patient_owners": self.patient_owner,
             "physician_owners": self.physician_owners,
             "metadata": self.metadata
         }
@@ -90,9 +89,9 @@ class File:
                     "studyInstanceUID": str(dcm.StudyInstanceUID),
                     "seriesDescription": str(dcm.SeriesDescription),
                     "seriesInstanceUID": str(dcm.SeriesInstanceUID),
-                    "seriesNumber": str(dcm.seriesNumber),
+                    "seriesNumber": str(dcm.SeriesNumber),
                     "modality": str(dcm.Modality),
-                    "instanceNumber": str(dcm.instanceNumber),
+                    "instanceNumber": str(dcm.InstanceNumber),
                     "sopInstanceUID": str(dcm.SOPInstanceUID),
                     "physicianName": str(dcm.PhysiciansName) if dcm.get("PhysiciansName") else '',
                     "imageType": [str(val) for val in dcm.ImageType] if dcm.get("ImageType") else [],

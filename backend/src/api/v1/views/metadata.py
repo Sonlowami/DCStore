@@ -19,7 +19,8 @@ def get_studies_by_me(email: str, page: int = 0) -> str:
                 'uploader_id': user._id
             } },
             {'$limit': 20},
-            {'$skip': (page * 20)}
+            {'$skip': (page * 20)},
+            {'$group': 'seriesNumber'}
         ]
         studies = mongo.db.files.aggregate(comditions)
         return jsonify(studies), 200
@@ -34,7 +35,20 @@ def get_one_study(email: str, id: str) -> str:
     try:
         user = User.get_user(email)
         study = mongo.db.files.find_one({'metadata.studyInstanceUID': id})
-        if id == str(study.uploader_id):
+        if str(user._id) == str(study.uploader_id):
+            return jsonify(study), 200
+    except Exception as e:
+        return jsonify({'error': e}), 500
+
+
+@app_views.get('/series/<id>')
+@authorize
+def get_one_study(email: str, id: str) -> str:
+    """Get one series with the given id"""
+    try:
+        user = User.get_user(email)
+        series = mongo.db.files.find_one({'metadata.seriesInstanceUID': id})
+        if str(user._id) == str(study.uploader_id):
             return jsonify(study), 200
     except Exception as e:
         return jsonify({'error': e}), 500

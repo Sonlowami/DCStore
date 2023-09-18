@@ -20,8 +20,8 @@ class File:
         self.filename = kwargs.get('filename')
         self.filepath = kwargs.get('filepath')
         self.filesize = kwargs.get('filesize')
-        self.patient_owners = kwargs.get('patient_owner')
-        self.physician_owners = kwargs.get('physician_owners')
+        self.patient_owner = kwargs.get('patient_owner', {})
+        self.physician_owners = kwargs.get('physician_owners', [])
         self.metadata = kwargs.get('metadata')
         self.verify_schema()
     

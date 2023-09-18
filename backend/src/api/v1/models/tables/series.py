@@ -11,6 +11,16 @@ class Series(BaseModel, db.Model):
     study_id = db.Column(db.String(255), db.ForeignKey('studies.id'), nullable=False)
     instances = db.relationship('Instance', backref='series', lazy=True)
 
+    def to_dict(self):
+        """Return a dictionary representation of a Series instance."""
+        return {
+            'id:': self.id,
+            'seriesDescription': self.seriesDescription,
+            'seriesInstanceUID': self.seriesInstanceUID,
+            'seriesNumber': self.seriesNumber,
+            'modality': self.modality
+        }
+
     @staticmethod
     def extract_series_metadata_from_file(file):
         """Extract series metadata from a File instance and return a dictionary."""

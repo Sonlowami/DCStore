@@ -7,7 +7,7 @@ from os import getenv
 from dotenv import load_dotenv
 
 from api.v1.utils.config import Config
-from api.v1.utils.database import mongo
+from api.v1.utils.database import mongo, db
 from api.v1.views import app_views
 
 
@@ -20,7 +20,8 @@ app.url_map.strict_slashes = False
 app.register_blueprint(app_views)
 app.config.from_object(Config)
 
-# Initialize database
+# Initialize databases
+db.init_app(app)
 mongo.init_app(app)
 # Initialize mail
 # mail = Mail(app)  # TODO: Uncomment this line when ready
@@ -33,6 +34,26 @@ CORS(app)
 @app.route("/")
 def hello() -> str:
     return "Hello World!"
+
+from sqlalchemy import text
+# Test database connection
+@app.route('/test_mysql')
+def test_mysql():
+    try:
+        db.session.execute(text('SELECT 1'))
+        return jsonify({'message': 'Mysql connection success'}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'error': 'er'}), 500
+
+# test mongodb connection
+@app.route('/test_mongodb')
+def test_mongodb():
+    try:
+        mongo.db.command('ping')
+        return jsonify({'message': 'Mongodb connection success'}), 200
+    except Exception as e:
+        return jsonify({'error': e}), 500
 
 
 if __name__ == "__main__":

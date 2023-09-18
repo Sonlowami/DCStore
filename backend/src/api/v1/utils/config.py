@@ -4,10 +4,17 @@ from os import getenv
 
 load_dotenv()
 
-# Database configuration
+# MongoDB configuration
 MONGO_HOST = getenv('MONGO_HOST', 'localhost')
 MONGO_PORT = int(getenv('MONGO_PORT', '27017'))
 MONGO_DBNAME = getenv('MONGO_DBNAME', 'dcstore')
+
+# MySQL configuration
+MYSQL_HOST = getenv('MYSQL_HOST', 'localhost')
+MYSQL_USER = getenv('MYSQL_USER', '')
+MYSQL_PASSWORD = getenv('MYSQL_PASSWORD', '')
+MYSQL_DB = getenv('MYSQL_DB', '')
+MYSQL_PORT = getenv('MYSQL_PORT', '3306')
 
 # Mail configuration
 MAIL_SERVER = getenv('MAIL_SERVER', '')
@@ -34,4 +41,5 @@ class Config:
     SWAGGER = {'title': 'DCStore API Documentation', 'uiversion': 3}
     DEBUG = getenv('DEBUG', False)
     MONGO_URI = f'mongodb://{MONGO_HOST}:{MONGO_PORT}/{MONGO_DBNAME}'
-    REDIS_URI = f'redis://{REDIS_HOST}:{REDIS_PORT/{REDIS_DB}}'
+    REDIS_URI = f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}'
+    SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}'

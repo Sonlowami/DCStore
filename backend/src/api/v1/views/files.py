@@ -49,6 +49,7 @@ def upload_file(email):
             data = File.extract_metadata_from_dicom(file)
             if not data:
                 return jsonify({'error': 'Invalid file'}), 400
+            data['uploader_id'] = str(user['_id'])
             new_file = File(**data)
             if new_file.filepath:
                 file.save(new_file.filepath)

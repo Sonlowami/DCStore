@@ -23,6 +23,7 @@ class File:
         self.patient_owner = kwargs.get('patient_owner', {})
         self.physician_owners = kwargs.get('physician_owners', [])
         self.metadata = kwargs.get('metadata')
+        self.uploader_id = kwargs.get('uploader_id')
         self.verify_schema()
     
     def verify_schema(self):
@@ -39,10 +40,11 @@ class File:
                 },
                 "patient_owner": {"type": "object"},
                 "physician_owners": {"type": "array"},
-                "metadata": {"type": "object"}
+                "metadata": {"type": "object"},
+                "uploader_id": {"type": "string"},
             },
             # "required": ["filename", "filepath", "patient_owner", "physician_owners", "metadata"]
-            "required": ["filename", "filepath", "metadata"]
+            "required": ["filename", "filepath", "metadata", "uploader_id"]
         }
         validate(instance=self.__dict__, schema=FILE_SCHEMA)
     
@@ -55,7 +57,8 @@ class File:
             "uploadDate": datetime.now(),
             "patient_owners": self.patient_owner,
             "physician_owners": self.physician_owners,
-            "metadata": self.metadata
+            "metadata": self.metadata,
+            "uploader_id": self.uploader_id,
         }
         return mongo.db.files.insert_one(file) # type: ignore
     

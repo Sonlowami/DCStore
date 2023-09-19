@@ -1,15 +1,17 @@
 from flask import request, jsonify
 
 from jsonschema import ValidationError
+from datetime import datetime
 from dotenv import load_dotenv
 import os
 
 from api.v1.views import app_views
-from api.v1.models import File
+from api.v1.models import File, User
 from api.v1.models.tables import Patient, Study, Series, Instance
 from api.v1.utils.zipping import zip_file, extract_and_return_dicom_list
 from api.v1.utils.caching import redis_client
 from api.v1.utils.database import mongo, db
+from api.v1.utils.token import authorize
 
 load_dotenv()
 
@@ -17,8 +19,14 @@ DICOM_FOLDER = os.getenv('DICOM_FOLDER', '/tmp/dicom_files')
 
 
 @app_views.route('/files', methods=['POST'])
-def upload_file():
+@authorize
+def upload_file(email):
     """Upload dicom files to mongodb"""
+
+    try:
+        user = User.get_user(email)
+    except Exception:
+        return jsonify({'error': 'User not found'}), 404
     
     # Get all dicom files from request
     dicom_files = []
@@ -83,6 +91,22 @@ def upload_file():
                 instance = Instance(**instance_data)
                 instance.series = series
                 instance.save()
+            
+            # Update user
+            try:
+                update_query = {
+                    "$push": {
+                        "files": new_file.filepath,
+                        f"patients.{patient.patientID}": study.studyInstanceUID
+                    },
+                    "$set": {
+                        "updated_at": datetime.now()
+                    }
+                }
+                mongo.db.users.update_one({"email": email}, update_query)
+            except Exception as e:
+                print(e)
+                return jsonify({'error': 'Something went wrong!'}), 500
 
             # generate or append to a zip
             # zip_folder = DICOM_FOLDER + '/zip'

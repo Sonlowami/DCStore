@@ -15,6 +15,8 @@ class User:
         self.username = kwargs.get('username')
         self.fullname = kwargs.get('fullname')
         self.role = kwargs.get('role')
+        self.patients = {}
+        self.files = []
         self.verify_schema()
 
     def verify_schema(self):
@@ -27,8 +29,10 @@ class User:
                 "username": {"type": "string"},
                 "fullname": {"type": "string"},
                 "role": {"type": "string"},
+                "files": {"type": "array"},
+                "patients": {"type": "object"},
             },
-            "required": ["email", "password", "username", "fullname", "role"]
+            "required": ["email", "password", "username", "fullname", "role", "patients", "files"]
         }
         # Validate user schema
         validate(instance=self.__dict__, schema=USER_SCHEMA)
@@ -41,10 +45,16 @@ class User:
             "username": self.username,
             "fullname": self.fullname,
             "role": self.role,
+            "files": self.files,
+            "patients": self.patients,
             "created_at": datetime.now(),
             "updated_at": datetime.now(),
         }
         return mongo.db.users.insert_one(user) # type: ignore
+    
+    def update(self, update_query):
+        """Update user in mongodb"""
+        return mongo.db.users.update_one({"email": self.email}, update_query)
 
     @staticmethod
     def get_user(email):

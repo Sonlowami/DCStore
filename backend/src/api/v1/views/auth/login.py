@@ -4,10 +4,13 @@ from werkzeug.security import check_password_hash
 import datetime
 import jwt
 from os import getenv
+from dotenv import load_dotenv
 
 from api.v1.models.user import User
 from api.v1.views import app_views
 
+
+load_dotenv()
 
 SECRET_KEY = getenv('SECRET_KEY', '')
 

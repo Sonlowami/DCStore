@@ -15,21 +15,6 @@ class Patient(BaseModel, db.Model):
 
     studies = db.relationship('Study', backref='patient', lazy=True)
 
-    def to_dict(self):
-        """Return a dictionary representation of a Patient instance."""
-        data = {
-            'id': self.id,
-            'patientID': self.patientID,
-            'patientName': self.patientName,
-            'patientSex': self.patientSex,
-            'patientAge': self.patientAge
-        }
-        if self.patientBirthDate and isinstance(self.patientBirthDate, datetime):
-            data['patientBirthDate'] = self.patientBirthDate.strftime(time)
-        else:
-            data['patientBirthDate'] = None
-        return data
-
     @staticmethod
     def extract_patient_metadata_from_file(file):
         """Extract patient metadata from a File instance and return a dictionary."""

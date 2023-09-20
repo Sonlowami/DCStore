@@ -48,6 +48,14 @@ class File:
         }
         validate(instance=self.__dict__, schema=FILE_SCHEMA)
     
+    def to_dict(self):
+        """Convert file object to dictionary"""
+        dict = self.__dict__.copy()
+        for key, value in dict.items():
+            if key == '_id':
+                self.__dict__[key] = str(value)
+        return dict
+    
     def save(self):
         """Save file to mongodb"""
         file = {

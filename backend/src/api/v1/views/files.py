@@ -153,3 +153,56 @@ def get_file(email, file_id):
     except Exception as e:
         print(e)
         return jsonify({'error': 'Something went wrong!'}), 500
+
+
+@app_views.route('/files/<file_id>', methods=['DELETE'])
+@authorize
+def delete_file(email, file_id):
+    """Delete a file uploaded by a user"""
+    try:
+        user = User.get_user(email)
+    except Exception:
+        return jsonify({'error': 'User not found'}), 404
+    
+    try:
+        # delete file from mongodb
+        file = mongo.db.files.find_one({"_id": ObjectId(file_id), "uploader_id": str(user['_id'])})
+        if not file:
+            return jsonify({'error': 'File not found'}), 404
+        mongo.db.files.delete_one({"_id": ObjectId(file_id)})
+
+        # remove file from user's files
+        try:
+            update_query = {
+                "$pull": {
+                    "files": file['filepath']
+                },
+                "$set": {
+                    "updated_at": datetime.now()
+                }
+            }
+            mongo.db.users.update_one({"email": email}, update_query)
+        except Exception as e:
+            print(e)
+            return jsonify({'error': 'Something went wrong!'}), 500
+        
+        # remove file from MySQL
+        try:
+            instance = Instance.get_instance_by_sopInstanceUID(file['metadata']['sopInstanceUID'])
+            instance.delete()
+        except Exception as e:
+            print(e)
+            return jsonify({'error': 'Something went wrong!'}), 500
+        
+        # remove file from filesystem
+        try:
+            os.remove(file['filepath'])
+        except Exception as e:
+            print(e)
+            return jsonify({'error': 'Something went wrong!'}), 500
+        return jsonify({'message': 'File deleted successfully'}), 200
+    except InvalidId:
+        return jsonify({'error': 'Invalid file id'}), 400
+    except Exception as e:
+        print(e)
+        return jsonify({'error': 'Something went wrong!'}), 500

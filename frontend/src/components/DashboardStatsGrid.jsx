@@ -1,12 +1,14 @@
 import React from 'react'
-import { IoBagHandle } from 'react-icons/io5'
+import { FaImages, FaBookMedical } from 'react-icons/fa'
+import { FaPeopleLine } from 'react-icons/fa6'
+import { SiSteelseries } from 'react-icons/si'
 
 export default function DashboardStatsGrid() {
   return (
     <div className="flex gap-4 w-full">
       <BoxWrapper>
         <div className='rounded-full h-12 w-12 flex items-center justify-center bg-sky-500'>
-        <IoBagHandle className='text-2xl text-white'/>
+        <FaPeopleLine className='text-2xl text-white'/>
         </div>
         <div className='pl-4'>
           <span className='text-sm text-gray-500 font-light'>Total Patients</span>
@@ -17,8 +19,8 @@ export default function DashboardStatsGrid() {
         </div>
       </BoxWrapper>
       <BoxWrapper>
-      <div className='rounded-full h-12 w-12 flex items-center justify-center bg-sky-500'>
-        <IoBagHandle className='text-2xl text-white'/>
+      <div className='rounded-full h-12 w-12 flex items-center justify-center bg-green-500'>
+        <FaBookMedical className='text-2xl text-white'/>
         </div>
         <div className='pl-4'>
           <span className='text-sm text-gray-500 font-light'>Total Studies</span>
@@ -29,8 +31,8 @@ export default function DashboardStatsGrid() {
         </div>
       </BoxWrapper>
       <BoxWrapper>
-      <div className='rounded-full h-12 w-12 flex items-center justify-center bg-sky-500'>
-        <IoBagHandle className='text-2xl text-white'/>
+      <div className='rounded-full h-12 w-12 flex items-center justify-center bg-orange-500'>
+        <SiSteelseries className='text-2xl text-white'/>
         </div>
         <div className='pl-4'>
           <span className='text-sm text-gray-500 font-light'>Total Series</span>
@@ -41,8 +43,8 @@ export default function DashboardStatsGrid() {
         </div>
       </BoxWrapper>
       <BoxWrapper>
-      <div className='rounded-full h-12 w-12 flex items-center justify-center bg-sky-500'>
-        <IoBagHandle className='text-2xl text-white'/>
+      <div className='rounded-full h-12 w-12 flex items-center justify-center bg-neutral-500'>
+        <FaImages className='text-2xl text-white'/>
         </div>
         <div className='pl-4'>
           <span className='text-sm text-gray-500 font-light'>Total Images</span>

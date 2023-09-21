@@ -3,6 +3,7 @@ import Layout from './components/shared/layout';
 import Dashboard from './components/dashboard';
 import Products from './components/products';
 import Login from './components/login';
+import BookSearch from './components/BookSearch'
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
           <Route path='products' element={ <Products/> }/>
         </Route>
         <Route path='login' element={ <Login/> }/>
+        <Route path='bookSearch' element = { <BookSearch/> }/>
     </Routes>
     </Router>
   );

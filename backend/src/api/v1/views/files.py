@@ -4,6 +4,7 @@ from jsonschema import ValidationError
 from datetime import datetime
 from dotenv import load_dotenv
 import os
+from bson.objectid import ObjectId, InvalidId
 
 from api.v1.views import app_views
 from api.v1.models import File, User
@@ -128,6 +129,27 @@ def get_files(email):
     try:
         files = mongo.db.files.find({"uploader_id": str(user['_id'])})
         return jsonify([File.serialize_file(file) for file in files]), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'error': 'Something went wrong!'}), 500
+
+
+@app_views.route('/files/<file_id>', methods=['GET'])
+@authorize
+def get_file(email, file_id):
+    """Get a file uploaded by a user"""
+    try:
+        user = User.get_user(email)
+    except Exception:
+        return jsonify({'error': 'User not found'}), 404
+    
+    try:
+        file = mongo.db.files.find_one({"_id": ObjectId(file_id), "uploader_id": str(user['_id'])})
+        if not file:
+            return jsonify({'error': 'File not found'}), 404
+        return jsonify(File.serialize_file(file)), 200
+    except InvalidId:
+        return jsonify({'error': 'Invalid file id'}), 400
     except Exception as e:
         print(e)
         return jsonify({'error': 'Something went wrong!'}), 500

@@ -4,7 +4,6 @@ from api.v1.views import app_views
 from api.v1.models.tables.user import User
 from api.v1.models.tables.study import Study
 from api.v1.models.tables.patient import Patient
-from api.v1.models.tables.many_to_many import user_study
 from api.v1.utils.database import db
 from api.v1.utils.token import authorize
 
@@ -62,7 +61,7 @@ def get_study_by_patient_id_and_study_id(email: str, patient_id: str, study_id: 
         return jsonify({'error': 'Patient not found'}), 404
     
     study = Study.get_study_by_studyInstanceUID(study_id)
-    if not study or user not in study.users:
+    if (not study) or (user not in study.users) or (study not in patient.studies):
         return jsonify({'error': 'Study not found'}), 404
     
     return jsonify(study.to_dict())

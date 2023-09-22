@@ -6,7 +6,7 @@ import jwt
 from os import getenv
 from dotenv import load_dotenv
 
-from api.v1.models.user import User
+from api.v1.models.tables.user import User
 from api.v1.views import app_views
 
 
@@ -32,7 +32,7 @@ def login() -> str:
     user = User.get_user(email)
     if not user:
         return jsonify({'error': 'User does not exist'}), 400
-    if not check_password_hash(user['password_hash'], password):
+    if not check_password_hash(user.password_hash, password):
         return jsonify({'error': 'Invalid password'}), 400
     try:
         exp = datetime.datetime.utcnow() + datetime.timedelta(hours=24)

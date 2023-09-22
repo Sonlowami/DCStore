@@ -13,6 +13,8 @@ class Study(BaseModel, db.Model):
     patient_id = db.Column(db.String(255), db.ForeignKey('patients.id'), nullable=False)
     series = db.relationship('Series', backref='study', lazy=True)
 
+    users = db.relationship('User', secondary='user_study', viewonly=False)
+
     @staticmethod
     def extract_study_metadata_from_file(file):
         """Extract study metadata from a File instance and return a dictionary."""

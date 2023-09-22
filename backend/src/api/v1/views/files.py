@@ -7,8 +7,8 @@ import os
 from bson.objectid import ObjectId, InvalidId
 
 from api.v1.views import app_views
-from api.v1.models import File, User
-from api.v1.models.tables import Patient, Study, Series, Instance
+from api.v1.models import File, UserMongo
+from api.v1.models.tables import Patient, Study, Series, Instance, User
 from api.v1.utils.zipping import zip_file, extract_and_return_dicom_list
 from api.v1.utils.caching import redis_client
 from api.v1.utils.database import mongo, db
@@ -24,10 +24,10 @@ DICOM_FOLDER = os.getenv('DICOM_FOLDER', '/tmp/dicom_files')
 def upload_file(email):
     """Upload dicom files to mongodb"""
 
-    try:
-        user = User.get_user(email)
-    except Exception:
+    user = User.get_user(email)
+    if not user:
         return jsonify({'error': 'User not found'}), 404
+    user_mongo = UserMongo.get_user(email)
     
     # Get all dicom files from request
     dicom_files = []
@@ -50,7 +50,7 @@ def upload_file(email):
             data = File.extract_metadata_from_dicom(file)
             if not data:
                 return jsonify({'error': 'Invalid file'}), 400
-            data['uploader_id'] = str(user['_id'])
+            data['uploader_id'] = str(user_mongo['_id'])
             new_file = File(**data)
             new_file.save()
             
@@ -61,6 +61,8 @@ def upload_file(email):
                 patient = existing_patient
             else:
                 patient = Patient(**patient_data)
+            if user not in patient.users:
+                patient.users.append(user)
 
             study_data = Study.extract_study_metadata_from_file(new_file)
             existing_study = Study.get_study_by_studyInstanceUID(study_data.get('studyInstanceUID', ''))
@@ -69,6 +71,8 @@ def upload_file(email):
             else:
                 study = Study(**study_data)
                 study.patient = patient
+            if user not in study.users:
+                study.users.append(user)
 
             series_data = Series.extract_series_metadata_from_file(new_file)
             existing_series = Series.get_series_by_seriesInstanceUID(series_data.get('seriesInstanceUID', ''))
@@ -77,6 +81,8 @@ def upload_file(email):
             else:
                 series = Series(**series_data)
                 series.study = study
+            if user not in series.users:
+                series.users.append(user)
 
             instance_data = Instance.extract_instance_metadata_from_file(new_file)
             existing_instance = Instance.get_instance_by_sopInstanceUID(instance_data.get('sopInstanceUID', ''))
@@ -84,7 +90,10 @@ def upload_file(email):
                 instance = existing_instance
             else:
                 instance = Instance(**instance_data)
+                instance.filepath = new_file.filepath
                 instance.series = series
+            if user not in instance.users:
+                instance.users.append(user)
             
             db.session.add_all([patient, study, series, instance])
             db.session.commit()
@@ -94,7 +103,6 @@ def upload_file(email):
                 update_query = {
                     "$push": {
                         "files": new_file.filepath,
-                        f"patients.{patient.patientID}": study.studyInstanceUID
                     },
                     "$set": {
                         "updated_at": datetime.now()
@@ -122,7 +130,7 @@ def upload_file(email):
 def get_files(email):
     """Get all files uploaded by a user"""
     try:
-        user = User.get_user(email)
+        user = UserMongo.get_user(email)
     except Exception:
         return jsonify({'error': 'User not found'}), 404
     
@@ -139,7 +147,7 @@ def get_files(email):
 def get_file(email, file_id):
     """Get a file uploaded by a user"""
     try:
-        user = User.get_user(email)
+        user = UserMongo.get_user(email)
     except Exception:
         return jsonify({'error': 'User not found'}), 404
     
@@ -160,7 +168,7 @@ def get_file(email, file_id):
 def delete_file(email, file_id):
     """Delete a file uploaded by a user"""
     try:
-        user = User.get_user(email)
+        user = UserMongo.get_user(email)
     except Exception:
         return jsonify({'error': 'User not found'}), 404
     

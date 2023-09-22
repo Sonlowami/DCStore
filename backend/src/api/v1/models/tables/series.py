@@ -11,6 +11,8 @@ class Series(BaseModel, db.Model):
     study_id = db.Column(db.String(255), db.ForeignKey('studies.id'), nullable=False)
     instances = db.relationship('Instance', backref='series', lazy=True)
 
+    users = db.relationship('User', secondary='user_series', viewonly=False)
+
     @staticmethod
     def extract_series_metadata_from_file(file):
         """Extract series metadata from a File instance and return a dictionary."""

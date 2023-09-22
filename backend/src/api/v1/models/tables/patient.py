@@ -1,5 +1,5 @@
 from api.v1.utils.database import db
-from api.v1.models.tables.base_model import BaseModel, time
+from api.v1.models.tables.base_model import BaseModel
 
 from datetime import datetime
 
@@ -14,6 +14,7 @@ class Patient(BaseModel, db.Model):
     patientAge = db.Column(db.String(10))
 
     studies = db.relationship('Study', backref='patient', lazy=True)
+    users = db.relationship('User', secondary='user_patient', viewonly=False)
 
     @staticmethod
     def extract_patient_metadata_from_file(file):

@@ -1,7 +1,7 @@
-import React, { useState, useRef, useCallback } from 'react'
-import useSearch from '../hooks/useSearch'
+import React, { useState, useRef, useCallback } from 'react';
+import useSearch from '../hooks/useSearch';
 
-export default function BookSearch() {
+export default function Search() {
   const [query, setQuery] = useState('');
   const [pageNumber, setPageNumber] = useState(1);
 

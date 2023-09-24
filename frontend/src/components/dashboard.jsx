@@ -2,7 +2,7 @@ import React from 'react'
 import DashboardStatsGrid from './DashboardStatsGrid'
 import TransactionChart from './TransactionChart'
 import GenderProfileChart from './GenderProfileChart'
-import RecentDataTable from './RecentData'
+import RecentStudiesTable from './RecentData'
 
 export default function Dashboard() {
   return (
@@ -13,7 +13,7 @@ export default function Dashboard() {
 				<GenderProfileChart />
 			</div>
 			<div className="flex flex-row gap-4 w-full">
-				<RecentDataTable />
+				<RecentStudiesTable />
 			</div>
 		</div>
   )

@@ -39,8 +39,7 @@ export async function postData(uri, payload, pageNumber=0) {
     else {
       res = await axios.post(uri, payload, { params: { pageNumber }});
     }
-    data = res.data;
-    return data;
+    return res.json();
   } catch (err) { console.log(err); }
 }
 

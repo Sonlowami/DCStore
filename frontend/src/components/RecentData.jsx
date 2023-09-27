@@ -1,104 +1,81 @@
 import React from 'react'
 import { format } from 'date-fns'
 import { Link } from 'react-router-dom'
-import { getOrderStatus } from '../lib/helpers'
+import { getStudyStatus } from '../lib/helpers'
 
-const recentOrderData = [
+const recentStudiesData = [
 	{
-		id: '1',
-		product_id: '4324',
-		customer_id: '23143',
-		customer_name: 'Shirley A. Lape',
-		order_date: '2022-05-17T03:24:00',
-		order_total: '$435.50',
-		current_order_status: 'PLACED',
-		shipment_address: 'Cottage Grove, OR 97424'
-	},
-	{
-		id: '7',
-		product_id: '7453',
-		customer_id: '96453',
-		customer_name: 'Ryan Carroll',
-		order_date: '2022-05-14T05:24:00',
-		order_total: '$96.35',
-		current_order_status: 'CONFIRMED',
-		shipment_address: 'Los Angeles, CA 90017'
-	},
-	{
-		id: '2',
-		product_id: '5434',
-		customer_id: '65345',
-		customer_name: 'Mason Nash',
-		order_date: '2022-05-17T07:14:00',
-		order_total: '$836.44',
-		current_order_status: 'SHIPPED',
-		shipment_address: 'Westminster, CA 92683'
-	},
-	{
-		id: '3',
-		product_id: '9854',
-		customer_id: '87832',
-		customer_name: 'Luke Parkin',
-		order_date: '2022-05-16T12:40:00',
-		order_total: '$334.50',
-		current_order_status: 'SHIPPED',
-		shipment_address: 'San Mateo, CA 94403'
-	},
-	{
-		id: '4',
-		product_id: '8763',
-		customer_id: '09832',
-		customer_name: 'Anthony Fry',
-		order_date: '2022-05-14T03:24:00',
-		order_total: '$876.00',
-		current_order_status: 'OUT_FOR_DELIVERY',
-		shipment_address: 'San Mateo, CA 94403'
-	},
-	{
-		id: '5',
-		product_id: '5627',
-		customer_id: '97632',
-		customer_name: 'Ryan Carroll',
-		order_date: '2022-05-14T05:24:00',
-		order_total: '$96.35',
-		current_order_status: 'DELIVERED',
-		shipment_address: 'Los Angeles, CA 90017'
-	}
-]
+    studyId: 301,
+    patientId: 1,
+    referringPhysician: 'Dr. Adams',
+    date_taken: '2023-09-25',
+    time_taken: '10:30 AM',
+    action: 'uploaded',
+    description: 'X-ray Chest',
+  },
+  {
+    studyId: 302,
+    patientId: 2,
+    referringPhysician: 'Dr. Smith',
+    date_taken: '2023-09-26',
+    time_taken: '9:45 AM',
+    action: 'downloaded',
+    description: 'MRI Brain Scan',
+  },
+  {
+    studyId: 303,
+    patientId: 3,
+    referringPhysician: 'Dr. Johnson',
+    date_taken: '2023-09-27',
+    time_taken: '3:15 PM',
+    action: 'modified',
+    description: 'CT Abdomen',
+  },
+  {
+    studyId: 304,
+    patientId: 4,
+    referringPhysician: 'Dr. Anderson',
+    date_taken: '2023-09-24',
+    time_taken: '11:20 AM',
+    action: 'uploaded',
+    description: 'Ultrasound Heart',
+  },
+];
+
 
 export default function RecentStudiesTable() {
 	return (
-		<div className="bg-white px-4 pt-3 pb-4 rounded-sm border border-gray-200 flex-1">
+		<div className="bg-white px-4 pt-3 pb-4 rounded-sm bstudy bstudy-gray-200 flex-1">
 			<strong className="text-gray-700 font-medium">Recent Studies</strong>
-			<div className="border-x border-gray-200 rounded-sm mt-3">
+			<div className="bstudy-x bstudy-gray-200 rounded-sm mt-3">
 				<table className="w-full text-gray-700">
 					<thead>
 						<tr>
 							<th>ID</th>
-							<th>Product ID</th>
-							<th>Customer Name</th>
-							<th>Order Date</th>
-							<th>Order Total</th>
-							<th>Shipping Address</th>
-							<th>Order Status</th>
+							<th>Patient ID</th>
+							<th>Referring Physician</th>
+							<th>Taken Date</th>
+							<th>Taken Time</th>
+							<th>Description</th>
+							<th>Action</th>
 						</tr>
 					</thead>
 					<tbody>
-						{recentOrderData.map((order) => (
-							<tr key={order.id}>
+						{recentStudiesData.map((study) => (
+							<tr key={study.id}>
 								<td>
-									<Link to={`/order/${order.id}`}>#{order.id}</Link>
+									<Link to={`/study/${study.id}`}>#{study.id}</Link>
 								</td>
 								<td>
-									<Link to={`/product/${order.product_id}`}>#{order.product_id}</Link>
+									<Link to={`/product/${study.patientId}`}>#{study.patientId}</Link>
 								</td>
 								<td>
-									<Link to={`/customer/${order.customer_id}`}>{order.customer_name}</Link>
+									<Link to={`/customer/${study.referringPhysician}`}>{study.referringPhysician}</Link>
 								</td>
-								<td>{format(new Date(order.order_date), 'dd MMM yyyy')}</td>
-								<td>{order.order_total}</td>
-								<td>{order.shipment_address}</td>
-								<td>{getOrderStatus(order.current_order_status)}</td>
+								<td>{format(new Date(study.date_taken), 'dd MMM yyyy')}</td>
+								<td>{study.time_taken}</td>
+								<td>{study.description}</td>
+								<td>{getStudyStatus(study.action)}</td>
 							</tr>
 						))}
 					</tbody>

@@ -30,6 +30,10 @@ class BaseModel:
                 dict[column.name] = getattr(self, column.name).strftime(time)
             else:
                 dict[column.name] = getattr(self, column.name)
+        try:
+            del dict['filepath']
+        except KeyError:
+            pass
         return dict
 
     def save(self):

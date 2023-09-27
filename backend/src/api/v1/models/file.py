@@ -53,6 +53,10 @@ class File:
                 dict[key] = str(value)
             if isinstance(value, datetime):
                 dict[key] = value.isoformat()
+        try:
+            del dict['filepath']
+        except KeyError:
+            pass
         return dict
     
     def save(self):
@@ -119,7 +123,6 @@ class File:
         return {
             "id": str(file['_id']),
             "filename": file['filename'],
-            "filepath": file['filepath'],
             "uploadDate": file['uploadDate'].isoformat(),
             "metadata": file['metadata'],
             "uploader_id": file['uploader_id'],

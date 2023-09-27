@@ -1,4 +1,4 @@
-from flask import request, jsonify
+from flask import request, jsonify, send_file
 
 from jsonschema import ValidationError
 from datetime import datetime
@@ -209,6 +209,27 @@ def delete_file(email, file_id):
             print(e)
             return jsonify({'error': 'Something went wrong!'}), 500
         return jsonify({'message': 'File deleted successfully'}), 200
+    except InvalidId:
+        return jsonify({'error': 'Invalid file id'}), 400
+    except Exception as e:
+        print(e)
+        return jsonify({'error': 'Something went wrong!'}), 500
+
+
+@app_views.route('/files/<file_id>/download', methods=['GET'])
+@authorize
+def download_file(email, file_id):
+    """Download a file uploaded by a user"""
+    try:
+        user = UserMongo.get_user(email)
+    except Exception:
+        return jsonify({'error': 'User not found'}), 404
+    
+    try:
+        file = mongo.db.files.find_one({"_id": ObjectId(file_id), "uploader_id": str(user['_id'])})
+        if not file:
+            return jsonify({'error': 'File not found'}), 404
+        return send_file(file['filepath'], as_attachment=True), 200
     except InvalidId:
         return jsonify({'error': 'Invalid file id'}), 400
     except Exception as e:

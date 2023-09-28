@@ -48,7 +48,7 @@ def get_one_study(email: str, id: str) -> str:
     try:
         user = User.get_user(email)
         series = mongo.db.files.find_one({'metadata.seriesInstanceUID': id})
-        if str(user._id) == str(study.uploader_id):
-            return jsonify(study), 200
+        if str(user._id) == str(series.uploader_id):
+            return jsonify(series), 200
     except Exception as e:
         return jsonify({'error': e}), 500

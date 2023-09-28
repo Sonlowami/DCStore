@@ -1,21 +1,29 @@
 import React, { useState } from 'react';
+import { postData } from '../lib/helpers/queryFromApi';
 
 const ResetPassword = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setconfirmPassword] = useState('');
+  const [status, setStatus] = useState(0);
+  const [passwordMatch, setPasswordMatch] = useState(false);
 
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
   };
   const handleconfirmPasswordChange = (e) => {
     setconfirmPassword(e.target.value);
+    if (password !== confirmPassword) {
+      setPasswordMatch(false);
+    }
+    else { setPasswordMatch(true); }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // You can add your login logic here
-    console.log('Email:', email);
-    console.log('Password:', password);
+    try {
+      const resp = postData('/api/v1/reset-password', { password });
+      setStatus(resp.statusCode);
+    } catch(err) { console.log(err); }
   };
 
   return (

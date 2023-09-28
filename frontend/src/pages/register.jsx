@@ -12,6 +12,8 @@ const Register = () => {
     role: 'patient', // Default to patient
   });
 
+  const [ status, setStatus ] = useState(0);
+
   const [formErrors, setFormErrors] = useState({
     firstName: '',
     lastName: '',
@@ -29,8 +31,11 @@ const Register = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
     if (validateForm()) {
-      const resp = postData(formData)
-      console.log('Form submitted:', formData);
+      try {
+        const resp = postData('/api/v1/register', formData);
+        setStatus(resp.statusCode);
+        console.log('Form submitted:', formData);
+      } catch (err) { console.log(err); }
     }
   };
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { postData } from '../hooks/queryFromApi'
+import { postData } from '../lib/helpers/queryFromApi'
 
 export default function Upload() {
   const [files, setFiles] = useState([]);

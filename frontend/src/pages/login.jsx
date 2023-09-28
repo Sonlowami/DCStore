@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom'
+import { Link, redirect } from 'react-router-dom'
+import { postData } from '../lib/helpers/queryFromApi';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -18,6 +19,15 @@ const Login = () => {
     // You can add your login logic here
     console.log('Email:', email);
     console.log('Password:', password);
+    const credentials = { email, password };
+    try {
+      const resp = postData('/api/v1/login', credentials);
+      const token = resp.json['x-token'];
+      localStorage.setItem('x-token', token);
+      redirect('/');
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (

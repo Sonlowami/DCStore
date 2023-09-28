@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { postData } from '../lib/helpers/queryFromApi';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
+  const [status, setStatus] = useState(0);
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
@@ -9,7 +11,10 @@ const ForgotPassword = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // You can add your "forgot password" logic here
+    try {
+      const resp = postData('/api/v1/forgot-password', { email });
+      setStatus(resp.statusCode);
+    } catch (err) { console.log(err); }
     console.log('Email:', email);
   };
 

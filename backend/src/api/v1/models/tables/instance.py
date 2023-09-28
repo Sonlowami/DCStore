@@ -10,16 +10,9 @@ class Instance(BaseModel, db.Model):
     physicianName = db.Column(db.String(255))
     imageType = db.Column(db.JSON)  # Use a JSON field to store a list of strings
     series_id = db.Column(db.String(255), db.ForeignKey('series.id'), nullable=False)
+    filepath = db.Column(db.String(255), nullable=False)
 
-    def to_dict(self):
-        """Return a dictionary representation of an Instance instance."""
-        return {
-            'id': self.id,
-            'instanceNumber': self.instanceNumber,
-            'sopInstanceUID': self.sopInstanceUID,
-            'physicianName': self.physicianName,
-            'imageType': self.imageType
-        }
+    users = db.relationship('User', secondary='user_instance', viewonly=False)
 
     @staticmethod
     def extract_instance_metadata_from_file(file):

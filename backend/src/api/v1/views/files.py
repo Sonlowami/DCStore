@@ -1,15 +1,18 @@
-from flask import request, jsonify
+from flask import request, jsonify, send_file
 
 from jsonschema import ValidationError
+from datetime import datetime
 from dotenv import load_dotenv
 import os
+from bson.objectid import ObjectId, InvalidId
 
 from api.v1.views import app_views
-from api.v1.models import File
-from api.v1.models.tables import Patient, Study, Series, Instance
+from api.v1.models import File, UserMongo
+from api.v1.models.tables import Patient, Study, Series, Instance, User
 from api.v1.utils.zipping import zip_file, extract_and_return_dicom_list
 from api.v1.utils.caching import redis_client
 from api.v1.utils.database import mongo, db
+from api.v1.utils.token import authorize
 
 load_dotenv()
 
@@ -17,8 +20,14 @@ DICOM_FOLDER = os.getenv('DICOM_FOLDER', '/tmp/dicom_files')
 
 
 @app_views.route('/files', methods=['POST'])
-def upload_file():
+@authorize
+def upload_file(email):
     """Upload dicom files to mongodb"""
+
+    user = User.get_user(email)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    user_mongo = UserMongo.get_user(email)
     
     # Get all dicom files from request
     dicom_files = []
@@ -37,25 +46,23 @@ def upload_file():
     try:
         for file in dicom_files:
 
-            # save to mongodb
+            # save file to mongodb
             data = File.extract_metadata_from_dicom(file)
             if not data:
                 return jsonify({'error': 'Invalid file'}), 400
+            data['uploader_id'] = str(user_mongo['_id'])
             new_file = File(**data)
-            if new_file.filepath:
-                file.save(new_file.filepath)
-                new_file.save()
-            else:
-                return jsonify({'error': 'Something went wrong!'}), 500
+            new_file.save()
             
-            # save to MySQL
+            # save metadata to MySQL
             patient_data = Patient.extract_patient_metadata_from_file(new_file)
             existing_patient = Patient.get_patient_by_patientID(patient_data.get('patientID', ''))
             if existing_patient:
                 patient = existing_patient
             else:
                 patient = Patient(**patient_data)
-                patient.save()
+            if user not in patient.users:
+                patient.users.append(user)
 
             study_data = Study.extract_study_metadata_from_file(new_file)
             existing_study = Study.get_study_by_studyInstanceUID(study_data.get('studyInstanceUID', ''))
@@ -64,7 +71,8 @@ def upload_file():
             else:
                 study = Study(**study_data)
                 study.patient = patient
-                study.save()
+            if user not in study.users:
+                study.users.append(user)
 
             series_data = Series.extract_series_metadata_from_file(new_file)
             existing_series = Series.get_series_by_seriesInstanceUID(series_data.get('seriesInstanceUID', ''))
@@ -73,7 +81,8 @@ def upload_file():
             else:
                 series = Series(**series_data)
                 series.study = study
-                series.save()
+            if user not in series.users:
+                series.users.append(user)
 
             instance_data = Instance.extract_instance_metadata_from_file(new_file)
             existing_instance = Instance.get_instance_by_sopInstanceUID(instance_data.get('sopInstanceUID', ''))
@@ -81,17 +90,148 @@ def upload_file():
                 instance = existing_instance
             else:
                 instance = Instance(**instance_data)
+                instance.filepath = new_file.filepath
                 instance.series = series
-                instance.save()
-
+            if user not in instance.users:
+                instance.users.append(user)
+            
+            db.session.add_all([patient, study, series, instance])
+            db.session.commit()
+            
+            # Update user
+            try:
+                update_query = {
+                    "$push": {
+                        "files": new_file.filepath,
+                    },
+                    "$set": {
+                        "updated_at": datetime.now()
+                    }
+                }
+                mongo.db.users.update_one({"email": email}, update_query)
+            except Exception as e:
+                print(e)
+                return jsonify({'error': 'Something went wrong!'}), 500
+            
             # generate or append to a zip
-            # zip_folder = DICOM_FOLDER + '/zip'
-            # if not os.path.exists(zip_folder):
-            #     os.makedirs(zip_folder)
-            # output_zip = f"{zip_folder}/{new_file.seriesInstanceUID}.zip"
-            # zip_file(output_zip, file)
-            # redis_client.set(new_file.seriesInstanceUID, output_zip)
+            zip_folder = DICOM_FOLDER + '/zip'
+            os.makedirs(zip_folder, exist_ok=True)
+            output_zip =f"{zip_folder}/{new_file.metadata['studyInstanceUID']}.zip"
+            zip_file(output_zip, file)
+            redis_client.set(new_file.metadata['seriesInstanceUID'], output_zip)
 
         return jsonify({'message': 'File uploaded successfully'}), 201
     except ValidationError:
         return jsonify({'error': 'Invalid file'}), 400
+
+
+@app_views.route('/files', methods=['GET'])
+@authorize
+def get_files(email):
+    """Get all files uploaded by a user"""
+    try:
+        user = UserMongo.get_user(email)
+    except Exception:
+        return jsonify({'error': 'User not found'}), 404
+    
+    try:
+        files = mongo.db.files.find({"uploader_id": str(user['_id'])})
+        return jsonify([File.serialize_file(file) for file in files]), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'error': 'Something went wrong!'}), 500
+
+
+@app_views.route('/files/<file_id>', methods=['GET'])
+@authorize
+def get_file(email, file_id):
+    """Get a file uploaded by a user"""
+    try:
+        user = UserMongo.get_user(email)
+    except Exception:
+        return jsonify({'error': 'User not found'}), 404
+    
+    try:
+        file = mongo.db.files.find_one({"_id": ObjectId(file_id), "uploader_id": str(user['_id'])})
+        if not file:
+            return jsonify({'error': 'File not found'}), 404
+        return jsonify(File.serialize_file(file)), 200
+    except InvalidId:
+        return jsonify({'error': 'Invalid file id'}), 400
+    except Exception as e:
+        print(e)
+        return jsonify({'error': 'Something went wrong!'}), 500
+
+
+@app_views.route('/files/<file_id>', methods=['DELETE'])
+@authorize
+def delete_file(email, file_id):
+    """Delete a file uploaded by a user"""
+    try:
+        user = UserMongo.get_user(email)
+    except Exception:
+        return jsonify({'error': 'User not found'}), 404
+    
+    try:
+        # delete file from mongodb
+        file = mongo.db.files.find_one({"_id": ObjectId(file_id), "uploader_id": str(user['_id'])})
+        if not file:
+            return jsonify({'error': 'File not found'}), 404
+        mongo.db.files.delete_one({"_id": ObjectId(file_id)})
+
+        # remove file from user's files
+        try:
+            update_query = {
+                "$pull": {
+                    "files": file['filepath']
+                },
+                "$set": {
+                    "updated_at": datetime.now()
+                }
+            }
+            mongo.db.users.update_one({"email": email}, update_query)
+        except Exception as e:
+            print(e)
+            return jsonify({'error': 'Something went wrong!'}), 500
+        
+        # remove file from MySQL
+        try:
+            instance = Instance.get_instance_by_sopInstanceUID(file['metadata']['sopInstanceUID'])
+            instance.delete()
+        except Exception as e:
+            print(e)
+            return jsonify({'error': 'Something went wrong!'}), 500
+        
+        # remove file from filesystem
+        try:
+            os.remove(file['filepath'])
+        except Exception as e:
+            print(e)
+            return jsonify({'error': 'Something went wrong!'}), 500
+        return jsonify({'message': 'File deleted successfully'}), 200
+    except InvalidId:
+        return jsonify({'error': 'Invalid file id'}), 400
+    except Exception as e:
+        print(e)
+        return jsonify({'error': 'Something went wrong!'}), 500
+
+
+@app_views.route('/files/<file_id>/download', methods=['GET'])
+@authorize
+def download_file(email, file_id):
+    """Download a file uploaded by a user"""
+    try:
+        user = UserMongo.get_user(email)
+    except Exception:
+        return jsonify({'error': 'User not found'}), 404
+    
+    try:
+        file = mongo.db.files.find_one({"_id": ObjectId(file_id), "uploader_id": str(user['_id'])})
+        if not file:
+            return jsonify({'error': 'File not found'}), 404
+        return send_file(file['filepath'], as_attachment=True), 200
+    except InvalidId:
+        return jsonify({'error': 'Invalid file id'}), 400
+    except Exception as e:
+        print(e)
+        return jsonify({'error': 'Something went wrong!'}), 500

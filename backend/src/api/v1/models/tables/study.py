@@ -13,18 +13,7 @@ class Study(BaseModel, db.Model):
     patient_id = db.Column(db.String(255), db.ForeignKey('patients.id'), nullable=False)
     series = db.relationship('Series', backref='study', lazy=True)
 
-    def to_dict(self):
-        """Return a dictionary representation of a Study instance."""
-        data = {
-            'id': self.id,
-            'studyDescription': self.studyDescription,
-            'studyInstanceUID': self.studyInstanceUID
-        }
-        if self.studyDate and isinstance(self.studyDate, datetime):
-            data['studyDate'] = self.studyDate.strftime(time)
-        else:
-            data['studyDate'] = None
-        return data
+    users = db.relationship('User', secondary='user_study', viewonly=False)
 
     @staticmethod
     def extract_study_metadata_from_file(file):

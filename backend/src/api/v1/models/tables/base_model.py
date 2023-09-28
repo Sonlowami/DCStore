@@ -21,6 +21,20 @@ class BaseModel:
     def __repr__(self):
         """Define a base way to print models"""
         return f"{self.__class__.__name__} <{self.id}>"
+    
+    def to_dict(self):
+        """Define a base way to jsonify models, dealing with datetime objects"""
+        dict = {}
+        for column in self.__table__.columns:
+            if isinstance(getattr(self, column.name), datetime):
+                dict[column.name] = getattr(self, column.name).strftime(time)
+            else:
+                dict[column.name] = getattr(self, column.name)
+        try:
+            del dict['filepath']
+        except KeyError:
+            pass
+        return dict
 
     def save(self):
         """Save an object to the database"""

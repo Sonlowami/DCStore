@@ -76,19 +76,17 @@ def get_study_by_patient_id_and_study_id(email: str, patient_id: str, study_id: 
 
 
 @app_views.route('/studies/<study_id>/download', methods=['GET'])
-# @authorize
-def download_study(study_id: str) -> str:
-# def download_study(email: str, study_id: str) -> str:
+@authorize
+def download_study(email: str, study_id: str) -> str:
     """Download study"""
-    # user = User.get_user(email)
-    # if not user:
-    #     return jsonify({'error': 'User not found'}), 404
+    user = User.get_user(email)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
     
     study = Study.get_study_by_studyInstanceUID(study_id)
-    # if not study or user not in study.users:
-    if not study:
+    if not study or user not in study.users:
         return jsonify({'error': 'Study not found'}), 404
-
+    
     zip_path = f'{DICOM_FOLDER}/zip/{study_id}.zip'
     try:
         return send_file(zip_path, as_attachment=True)

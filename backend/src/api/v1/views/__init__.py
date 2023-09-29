@@ -8,3 +8,5 @@ from api.v1.views.patients import *
 from api.v1.views.studies import *
 from api.v1.views.series import *
 from api.v1.views.instances import *
+from api.v1.views.info import *
+from api.v1.views.user import *

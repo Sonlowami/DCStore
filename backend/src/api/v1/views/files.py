@@ -57,15 +57,18 @@ def upload_file(email):
             # save metadata to MySQL
             patient_data = Patient.extract_patient_metadata_from_file(new_file)
             existing_patient = Patient.get_patient_by_patientID(patient_data.get('patientID', ''))
+            new_patient = False
             if existing_patient:
                 patient = existing_patient
             else:
                 patient = Patient(**patient_data)
             if user not in patient.users:
                 patient.users.append(user)
+                new_patient = True
 
             study_data = Study.extract_study_metadata_from_file(new_file)
             existing_study = Study.get_study_by_studyInstanceUID(study_data.get('studyInstanceUID', ''))
+            new_study = False
             if existing_study:
                 study = existing_study
             else:
@@ -73,9 +76,11 @@ def upload_file(email):
                 study.patient = patient
             if user not in study.users:
                 study.users.append(user)
+                new_study = True
 
             series_data = Series.extract_series_metadata_from_file(new_file)
             existing_series = Series.get_series_by_seriesInstanceUID(series_data.get('seriesInstanceUID', ''))
+            new_series = False
             if existing_series:
                 series = existing_series
             else:
@@ -83,9 +88,11 @@ def upload_file(email):
                 series.study = study
             if user not in series.users:
                 series.users.append(user)
+                new_series = True
 
             instance_data = Instance.extract_instance_metadata_from_file(new_file)
             existing_instance = Instance.get_instance_by_sopInstanceUID(instance_data.get('sopInstanceUID', ''))
+            new_instance = False
             if existing_instance:
                 instance = existing_instance
             else:
@@ -94,9 +101,20 @@ def upload_file(email):
                 instance.series = series
             if user not in instance.users:
                 instance.users.append(user)
+                new_instance = True
             
             db.session.add_all([patient, study, series, instance])
             db.session.commit()
+
+            # update redis user info
+            if new_patient:
+                redis_client.incr(f'patients_count-{user.id}')
+            if new_study:
+                redis_client.incr(f'studies_count-{user.id}')
+            if new_series:
+                redis_client.incr(f'series_count-{user.id}')
+            if new_instance:
+                redis_client.incr(f'instances_count-{user.id}')
             
             # Update user
             try:

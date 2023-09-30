@@ -22,7 +22,7 @@ const Login = () => {
     const credentials = { email, password };
     try {
       const resp = postData('/api/v1/login', credentials);
-      const token = resp.json['x-token'];
+      const token = resp.json()['x-token'];
       localStorage.setItem('x-token', token);
       redirect('/');
     } catch (err) {

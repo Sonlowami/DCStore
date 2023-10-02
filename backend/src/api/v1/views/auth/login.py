@@ -31,9 +31,9 @@ def login() -> str:
     
     user = User.get_user(email)
     if not user:
-        return jsonify({'error': 'User does not exist'}), 400
+        return jsonify({'error': 'User does not exist'}), 401
     if not check_password_hash(user.password_hash, password):
-        return jsonify({'error': 'Invalid password'}), 400
+        return jsonify({'error': 'Invalid password'}), 401
     try:
         exp = datetime.datetime.utcnow() + datetime.timedelta(hours=24)
         token = jwt.encode({'email': email, 'exp': exp}, SECRET_KEY, algorithm='HS256')

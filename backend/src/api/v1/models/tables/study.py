@@ -15,6 +15,15 @@ class Study(BaseModel, db.Model):
 
     users = db.relationship('User', secondary='user_study', viewonly=False)
 
+    def to_dict(self):
+        """Define a base way to jsonify models, dealing with datetime objects"""
+        dict = super().to_dict()
+        try:
+            dict['patientID'] = self.patient.patientID
+        except Exception as e:
+            print(e)
+        return dict
+
     @staticmethod
     def extract_study_metadata_from_file(file):
         """Extract study metadata from a File instance and return a dictionary."""

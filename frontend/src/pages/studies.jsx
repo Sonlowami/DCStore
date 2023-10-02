@@ -1,65 +1,48 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { getData } from '../lib/helpers/queryFromApi';
 
-const studies = [
-{
-  id: 101,
-  description: 'MRI Brain Scan',
-  patientId: 1,
-  referringPhysician: 'Dr. Smith',
-  recentSeriesId: 201,
-  series: 3,
-},
-{
-  id: 102,
-  description: 'X-ray Chest',
-  patientId: 2,
-  referringPhysician: 'Dr. Johnson',
-  recentSeriesId: 202,
-  series: 2,
-},
-{
-  id: 103,
-  description: 'CT Abdomen',
-  patientId: 3,
-  referringPhysician: 'Dr. Anderson',
-  recentSeriesId: 203,
-  series: 4,
-},
-{
-  id: 104,
-  description: 'Ultrasound Heart',
-  patientId: 4,
-  referringPhysician: 'Dr. Williams',
-  recentSeriesId: 204,
-  series: 1,
-},
-];
 
 export default function Studies() {
+  const [studies, setStudies] = useState([]);
+
+  const getStudies = async () => {
+    try {
+      const res = await getData('/api/v1/studies');
+      const data = res.data;
+      setStudies(data);
+    } catch (err) {
+      console.log(`err: ${err}`);
+      setStudies([]);
+    }
+  }
+
+  useEffect(() => {
+    getStudies();
+  }
+  , []);
+
   return (
     <div>
       <h1 className='font-semibold text-gray-900 text-xl py-3 mt-2'>Studies</h1>
       <table className='my-3 w-full'>
         <thead className='px-2 bg-sky-100'>
           <tr>
-            <th>Study ID</th>
             <th>Study description</th>
+            <th>Study Date</th>
+            <th>Study ID</th>
             <th>Patient ID</th>
             <th>Series</th>
-            <th>Recent Series ID</th>
-            <th>Referring Physician</th>
           </tr>
         </thead>
         <tbody className='px-2'>
           {studies.map((study) => (
             <tr key={study.id}>
-              <td>{study.id}</td>
-              <td>{study.description}</td>
-              <td>{study.patientId}</td>
-              <td>{study.series}</td>
-              <td>{study.recentSeriesId}</td>
-              <td>{study.referringPhysician}</td>
+              <td>{study.studyDescription || 'N/A'}</td>
+              <td>{new Date(study.studyDate).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) || 'N/A'}</td>
+              <td>{study.studyInstanceUID || 'N/A'}</td>
+              <td>{study.patientID || 'N/A'}</td>
+              <td>...</td>
             </tr>
           ))}
         </tbody>

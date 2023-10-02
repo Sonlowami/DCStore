@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Link, redirect } from 'react-router-dom'
-import { postData } from '../lib/helpers/queryFromApi';
+import { Link } from 'react-router-dom';
+import AuthService from '../lib/helpers/authService';
+import { redirect } from '../lib/helpers/queryFromApi';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
@@ -14,19 +16,20 @@ const Login = () => {
     setPassword(e.target.value);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage(''); // Clear any previous error message
     // You can add your login logic here
-    console.log('Email:', email);
-    console.log('Password:', password);
-    const credentials = { email, password };
     try {
-      const resp = postData('/api/v1/login', credentials);
-      const token = resp.json()['x-token'];
-      localStorage.setItem('x-token', token);
-      redirect('/');
+      const res = await AuthService.login(email, password);
+      if (res['x-token']) {
+        redirect('/');
+      } else {
+        setErrorMessage('Invalid credentials'); // Set error message
+      }
     } catch (err) {
-      console.log(err);
+      console.log(err.response.data.error);
+      setErrorMessage('Invalid credentials'); // Set error message
     }
   };
 
@@ -34,6 +37,9 @@ const Login = () => {
     <div className="flex h-screen justify-center items-center bg-sky-500">
       <form onSubmit={handleSubmit} className="bg-neutral-100 p-8 rounded shadow-md w-1/4 h-1/2">
         <h2 className="text-2xl font-semibold mb-4">Login</h2>
+        {errorMessage && (
+          <div className="mb-4 p-3 bg-red-400 text-white rounded">{errorMessage}</div>
+        )}
         <div className="mb-4">
           <label htmlFor="email" className="block text-gray-700 font-medium mb-2">Email</label>
           <input

@@ -1,25 +1,24 @@
 import React, { useState } from 'react';
+import { postData } from '../lib/helpers/queryFromApi';
+import { redirect } from '../lib/helpers/queryFromApi';
+import AuthService from '../lib/helpers/authService';
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    fullname: '',
+    username: '',
     email: '',
     password: '',
-    phoneNumber: '',
-    dateOfBirth: '',
-    gender: 'male', // Default to male
     role: 'patient', // Default to patient
   });
 
   const [ status, setStatus ] = useState(0);
 
   const [formErrors, setFormErrors] = useState({
-    firstName: '',
-    lastName: '',
+    fullname: '',
+    username: '',
     email: '',
     password: '',
-    gender: '',
     role: '',
   });
 
@@ -28,36 +27,42 @@ const Register = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     if (validateForm()) {
       try {
-        const resp = postData('/api/v1/register', formData);
-        setStatus(resp.statusCode);
-        console.log('Form submitted:', formData);
-      } catch (err) { console.log(err); }
+        await AuthService.register(formData);
+        redirect('/login');
+      } catch (err) {
+        if (err.response.status === 400) {
+          if (err.response.data.error === 'Username already exists') {
+            setFormErrors({ ...formErrors, username: 'Username already exists' });
+          } else if (err.response.data.error === 'User already exists') {
+            setFormErrors({ ...formErrors, email: 'Email already exists' });
+          }
+        }
+      }
     }
   };
 
   const validateForm = () => {
-    const { firstName, lastName, email, password, gender, role } = formData;
+    const { fullname, username, email, password, role } = formData;
     let errors = {
-      firstName: '',
-      lastName: '',
+      fullname: '',
+      username: '',
       email: '',
       password: '',
-      gender: '',
       role: '',
     };
     let isValid = true;
 
-    if (!firstName) {
-      errors.firstName = 'First Name is required';
+    if (!fullname) {
+      errors.lastName = 'Last Name is required';
       isValid = false;
     }
 
-    if (!lastName) {
-      errors.lastName = 'Last Name is required';
+    if (!username) {
+      errors.username = 'Username is required';
       isValid = false;
     }
 
@@ -68,11 +73,6 @@ const Register = () => {
 
     if (!password) {
       errors.password = 'Password is required';
-      isValid = false;
-    }
-
-    if (!gender) {
-      errors.gender = 'Gender is required';
       isValid = false;
     }
 
@@ -92,32 +92,32 @@ const Register = () => {
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
-              First Name<span className="text-red-600">*</span>
+              Full Name<span className="text-red-600">*</span>
             </label>
             <input
               type="text"
-              id="firstName"
-              name="firstName"
-              value={formData.firstName}
+              id="fullname"
+              name="fullname"
+              value={formData.fullname}
               onChange={handleInputChange}
               className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:border-blue-500"
             />
-            <div className="text-red-600 text-xs mt-1">{formErrors.firstName}</div>
+            <div className="text-red-600 text-xs mt-1">{formErrors.fullname}</div>
           </div>
 
           <div className="mb-4">
-            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
-              Last Name<span className="text-red-600">*</span>
+            <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+              Username<span className="text-red-600">*</span>
             </label>
             <input
               type="text"
-              id="lastName"
-              name="lastName"
-              value={formData.lastName}
+              id="username"
+              name="username"
+              value={formData.username}
               onChange={handleInputChange}
               className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:border-blue-500"
             />
-            <div className="text-red-600 text-xs mt-1">{formErrors.lastName}</div>
+            <div className="text-red-600 text-xs mt-1">{formErrors.username}</div>
           </div>
 
           <div className="mb-4">
@@ -148,59 +148,6 @@ const Register = () => {
               className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:border-blue-500"
             />
             <div className="text-red-600 text-xs mt-1">{formErrors.password}</div>
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Phone Number</label>
-            <input
-              type="tel"
-              id="phoneNumber"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleInputChange}
-              className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:border-blue-500"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Date of Birth</label>
-            <input
-              type="date"
-              id="dateOfBirth"
-              name="dateOfBirth"
-              value={formData.dateOfBirth}
-              onChange={handleInputChange}
-              className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:border-blue-500"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Gender<span className="text-red-600">*</span></label>
-            <div className="mt-2">
-              <label className="inline-flex items-center mr-4">
-                <input
-                  type="radio"
-                  name="gender"
-                  value="male"
-                  checked={formData.gender === 'male'}
-                  onChange={handleInputChange}
-                  className="form-radio text-blue-500 focus:ring-0"
-                />
-                <span className="ml-2">Male</span>
-              </label>
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="gender"
-                  value="female"
-                  checked={formData.gender === 'female'}
-                  onChange={handleInputChange}
-                  className="form-radio text-blue-500 focus:ring-0"
-                />
-                <span className="ml-2">Female</span>
-              </label>
-            </div>
-            <div className="text-red-600 text-xs mt-1">{formErrors.gender}</div>
           </div>
 
           <div className="mb-4">

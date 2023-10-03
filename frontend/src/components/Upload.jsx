@@ -10,14 +10,15 @@ export default function Upload() {
     setFiles(e.target.files);
   }
 
-  function handleFile() {
+  async function handleFile() {
     setStatus('uploading');
     const form = new FormData();
-    for (file of files) {
+    for (const file of files) {
       form.append('files', file);
     }
     try {
-      const response = postData('/upload', form);
+      const response = await postData('/api/v1/files', form);
+      console.log(JSON.stringify(response));
     } catch (err) { console.log(err); }
   }
   console.log('uploading processed!');

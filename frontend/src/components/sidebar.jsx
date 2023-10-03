@@ -4,10 +4,23 @@ import { DASHBOARD_SIDEBAR_BOTTOM_LINKS, DASHBOARD_SIDEBAR_LINKS } from '../lib/
 import { Link, useLocation } from 'react-router-dom'
 import classNames from 'classnames'
 import { HiOutlineLogout } from 'react-icons/hi'
+import AuthService from '../lib/helpers/authService'
+import { redirect, getData } from '../lib/helpers/queryFromApi';
 
 const linkClasses = 'flex align-center font-light px-3 py-2 hover:bg-neutral-700 active: bg-neutral-900 hover:no-underline rounded-sm text-base'
 
 export default function Sidebar() {
+
+  const handleLogout = async () => {
+    try {
+      await getData('/api/v1/logout');
+      AuthService.logout();
+      redirect('/login');
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   return (
     <div className='p-3 mr-10 flex flex-col bg-neutral-900 text-white'>
       <div className="flex items-center gap-3 px-1 py-3">
@@ -23,7 +36,7 @@ export default function Sidebar() {
         {DASHBOARD_SIDEBAR_BOTTOM_LINKS.map((item) => {
           return <SidebarLink key={item.key} item={item}/>
         })}
-        <div className={classNames('text-red-400 cursor-pointer', linkClasses)}>
+        <div className={classNames('text-red-400 cursor-pointer', linkClasses)} onClick={handleLogout}>
           <span className='text-xl'><HiOutlineLogout/></span> Log Out
         </div>
       </div>

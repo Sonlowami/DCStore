@@ -5,6 +5,8 @@ import { Popover, Transition, Menu } from '@headlessui/react'
 import classNames from 'classnames'
 import { useNavigate } from 'react-router-dom'
 import Upload from './Upload'
+import AuthService from '../lib/helpers/authService'
+import { redirect, getData } from '../lib/helpers/queryFromApi';
 
 export default function Header() {
   const { navigate } = useNavigate();
@@ -13,6 +15,16 @@ export default function Header() {
   function loadUpload() {
     console.log('upload called');
     (loading) ? setLoading(false): setLoading(true);
+  }
+
+  const handleLogout = async () => {
+    try {
+      await getData('/api/v1/logout');
+      AuthService.logout();
+      redirect('/login');
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
@@ -132,7 +144,7 @@ export default function Header() {
             </Menu.Item>
             <Menu.Item as='div'>
               {({active}) => {
-                return <button className={classNames(active && 'bg-blue-300', 'px-4 py-2 w-full')} onClick={() => navigate('/logout')}>
+                return <button className={classNames(active && 'bg-blue-300', 'px-4 py-2 w-full')} onClick={handleLogout}>
                   Log Out
                 </button>
               }}

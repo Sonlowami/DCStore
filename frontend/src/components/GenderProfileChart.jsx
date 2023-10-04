@@ -1,11 +1,7 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts'
+import { getData } from '../lib/helpers/queryFromApi'
 
-const data = [
-	{ name: 'Male', value: 540 },
-	{ name: 'Female', value: 620 },
-	{ name: 'Other', value: 10 }
-]
 
 const RADIAN = Math.PI / 180
 const COLORS = ['#00C49F', '#FFBB28', '#FF8042']
@@ -23,6 +19,26 @@ const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, per
 }
 
 export default function GenderProfilePieChart() {
+	const [data, setData] = useState([])
+
+	useEffect(() => {
+		const fetchStats = async () => {
+			try {
+				const response = await getData('/api/v1/patients_gender_count');
+				const new_data = [
+					{ name: 'Male', value: response.data['males'] },
+					{ name: 'Female', value: response.data['females'] },
+					{ name: 'Other', value: response.data['others'] }
+				]
+				setData(new_data)
+			} catch (error) {
+				console.error(error)
+			}
+		}
+		fetchStats()
+	}
+		, [])
+	
 	return (
 		<div className="w-[20rem] h-[22rem] bg-white p-4 rounded-sm border border-gray-200 flex flex-col">
 			<strong className="text-gray-700 font-medium">Patient Profile</strong>

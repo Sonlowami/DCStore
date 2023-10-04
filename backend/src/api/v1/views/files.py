@@ -11,6 +11,7 @@ from api.v1.models import File, UserMongo
 from api.v1.models.tables import Patient, Study, Series, Instance, User
 from api.v1.utils.zipping import zip_file, extract_and_return_dicom_list
 from api.v1.utils.caching import redis_client
+from api.v1.utils.activity import RecentFiles
 from api.v1.utils.database import mongo, db
 from api.v1.utils.token import authorize
 
@@ -52,7 +53,7 @@ def upload_file(email):
                 return jsonify({'error': 'Invalid file'}), 400
             data['uploader_id'] = str(user_mongo['_id'])
             new_file = File(**data)
-            new_file.save()
+            file_id = new_file.save().inserted_id
             
             # save metadata to MySQL
             patient_data = Patient.extract_patient_metadata_from_file(new_file)
@@ -109,12 +110,34 @@ def upload_file(email):
             # update redis user info
             if new_patient:
                 redis_client.incr(f'patients_count-{user.id}')
+                if patient.patientSex == 'F' or patient.patientSex.lower() == 'female':
+                    redis_client.incr(f'female_patients_count-{user.id}')
+                elif patient.patientSex == 'M' or patient.patientSex.lower() == 'male':
+                    redis_client.incr(f'male_patients_count-{user.id}')
+                else:
+                    redis_client.incr(f'other_patients_count-{user.id}')
             if new_study:
                 redis_client.incr(f'studies_count-{user.id}')
             if new_series:
                 redis_client.incr(f'series_count-{user.id}')
             if new_instance:
                 redis_client.incr(f'instances_count-{user.id}')
+
+            # update recent files
+            info = {
+                "filename": file.filename,
+                "patientName": patient_data.get('patientName', ''),
+                "studyDescription": study_data.get('studyDescription', ''),
+                "seriesDescription": series_data.get('seriesDescription', ''),
+                "instanceNumber": instance_data.get('instanceNumber', ''),
+                "sopInstanceUID": instance_data.get('sopInstanceUID', ''),
+                "action": "uploaded",
+            }
+            try:
+                RecentFiles.add_file_to_recent_files(str(user_mongo['_id']), str(file_id), info)
+            except Exception as e:
+                print(e)
+                return jsonify({'error': 'Something went wrong!'}), 500
             
             # Update user
             try:
@@ -247,6 +270,17 @@ def download_file(email, file_id):
         file = mongo.db.files.find_one({"_id": ObjectId(file_id), "uploader_id": str(user['_id'])})
         if not file:
             return jsonify({'error': 'File not found'}), 404
+
+        info = {
+            "filename": file['filename'],
+            "patientName": file['metadata'].get('patientName', ''),
+            "studyDescription": file['metadata'].get('studyDescription', ''),
+            "seriesDescription": file['metadata'].get('seriesDescription', ''),
+            "instanceNumber": file['metadata'].get('instanceNumber', ''),
+            "sopInstanceUID": file['metadata'].get('sopInstanceUID', ''),
+            "action": "downloaded",
+        }
+        RecentFiles.add_file_to_recent_files(str(user['_id']), file_id, info)
         return send_file(file['filepath'], as_attachment=True), 200
     except InvalidId:
         return jsonify({'error': 'Invalid file id'}), 400

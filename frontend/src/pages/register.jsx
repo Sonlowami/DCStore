@@ -86,12 +86,12 @@ const Register = () => {
   };
 
   return (
-     <div className='w-full h-full bg-sky-500 flex items-center justify-center'>
-      <div className="mx-auto w-1/2 my-6 p-4 bg-neutral-100 border shadow-lg rounded">
+     <div className='w-full h-screen bg-sky-500 flex items-center justify-center'>
+      <div className="mx-auto w-1/3 my-6 p-4 bg-neutral-100 border shadow-lg rounded">
         <h2 className="text-2xl font-bold mb-4">Create Account</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="firstName" className="block text-md font-medium text-gray-700">
               Full Name<span className="text-red-600">*</span>
             </label>
             <input
@@ -106,7 +106,7 @@ const Register = () => {
           </div>
 
           <div className="mb-4">
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="username" className="block text-md font-medium text-gray-700">
               Username<span className="text-red-600">*</span>
             </label>
             <input
@@ -121,7 +121,7 @@ const Register = () => {
           </div>
 
           <div className="mb-4">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="email" className="block text-md font-medium text-gray-700">
               Email<span className="text-red-600">*</span>
             </label>
             <input
@@ -136,7 +136,7 @@ const Register = () => {
           </div>
 
           <div className="mb-4">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="password" className="block text-md font-medium text-gray-700">
               Password<span className="text-red-600">*</span>
             </label>
             <input
@@ -151,7 +151,7 @@ const Register = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Role<span className="text-red-600">*</span></label>
+            <label className="block text-md font-medium text-gray-700">Role<span className="text-red-600">*</span></label>
             <div className="mt-2">
               <label className="inline-flex items-center mr-4">
                 <input

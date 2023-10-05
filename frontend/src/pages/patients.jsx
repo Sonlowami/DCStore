@@ -1,6 +1,7 @@
 import React from 'react'
 import { useState, useEffect } from 'react';
 import { getData } from '../lib/helpers/queryFromApi';
+import { Link } from 'react-router-dom';
 
 
 export default function Patients() {
@@ -39,7 +40,7 @@ export default function Patients() {
         <tbody className='px-2'>
           {patients.map((patient) => (
             <tr key={patient.id}>
-              <td>{patient.patientID || 'N/A'}</td>
+              <td>{<Link to={`/patients/${patient.patientID}`}>{patient.patientID}</Link> || 'N/A'}</td>
               <td>{patient.patientName || 'N/A'}</td>
               <td>{patient.patientAge || 'N/A'}</td>
               <td>{patient.patientSex || 'N/A'}</td>

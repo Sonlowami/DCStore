@@ -95,7 +95,7 @@ class File:
                     "patientID": str(dcm.PatientID),
                     "patientBirthDate": datetime.strptime(str(dcm.PatientBirthDate), '%Y%m%d') if dcm.PatientBirthDate else None,
                     "patientSex": str(dcm.PatientSex),
-                    "patientAge": str(dcm.PatientAge) if dcm.PatientAge else None,
+                    "patientAge": str(dcm.PatientAge) if hasattr(dcm, 'PatientAge') else None,
                     "studyDescription": str(dcm.StudyDescription),
                     "studyDate": datetime.strptime(str(dcm.StudyDate), '%Y%m%d') if dcm.StudyDate else None,
                     "studyInstanceUID": str(dcm.StudyInstanceUID),

@@ -11,7 +11,12 @@ import Register from './pages/register';
 import ResetPassword from './pages/resetPassword'
 import Shared from './pages/shared';
 import PrivateRoute from './components/PrivateRoute';
+import Patient from './pages/patient';
 import { Fragment } from 'react';
+import Instances from './pages/instances';
+import Series from './pages/series';
+import SingleSeries from './pages/singleSeries';
+import Study from './pages/study';
 
 function App() {
   return (
@@ -36,6 +41,21 @@ function App() {
             </Route>
             <Route exact path='/messages' element={<PrivateRoute />}>
               <Route index element={<Messages />} />
+            </Route>
+            <Route exact path='/series' element={<PrivateRoute />}>
+              <Route index element={<Series />} />
+            </Route>
+            <Route exact path='/instances' element={<PrivateRoute />}>
+              <Route index element={<Instances />} />
+            </Route>
+            <Route exact path={'/patients/:id'} element={<PrivateRoute />}>
+              <Route index element={<Patient />} />
+            </Route>
+            <Route exact path={'/studies/:id'} element={<PrivateRoute />}>
+              <Route index element={<Study />} />
+            </Route>
+            <Route exact path={'/series/:id'} element={<PrivateRoute />}>
+              <Route index element={<SingleSeries />} />
             </Route>
           </Route>
           <Route path="login" element={<Login />} />

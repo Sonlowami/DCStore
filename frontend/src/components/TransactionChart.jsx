@@ -17,7 +17,7 @@ export default function TransactionChart() {
     <div className='h-[22rem] bg-white p-4 border border-gray-200 flex flex-cols flex-1'>
       <strong className='text-gray-700 font-medium'>Patient Chart</strong>
       <div className="w-full mt-3">
-        <ResponsiveContainer  width={750} height={300}>
+        <ResponsiveContainer  width='100%' height='100%'>
         <BarChart width={730} height={250} data={data}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="Month" />

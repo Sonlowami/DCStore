@@ -9,7 +9,7 @@ class Instance(BaseModel, db.Model):
     sopInstanceUID = db.Column(db.String(255))
     physicianName = db.Column(db.String(255))
     imageType = db.Column(db.JSON)  # Use a JSON field to store a list of strings
-    seriesID = db.Column(db.String(255), db.ForeignKey('series.id'), nullable=False)
+    series_id = db.Column(db.String(255), db.ForeignKey('series.id'), nullable=False)
     filepath = db.Column(db.String(255), nullable=False)
 
     users = db.relationship('User', secondary='user_instance', viewonly=False)

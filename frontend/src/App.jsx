@@ -27,36 +27,36 @@ function App() {
             <Route exact path='/' element={<PrivateRoute />}>
               <Route index element={<Dashboard />} />
             </Route>
+            <Route exact path='/patients' element={<PrivateRoute />}>
+              <Route index element={<Patients />} />
+            </Route>
             <Route exact path='/studies' element={<PrivateRoute />}>
               <Route index element={<Studies />} />
             </Route>
-            <Route exact path='/history' element={<PrivateRoute />}>
+            <Route exact path={'/patients/:id/studies'} element={<PrivateRoute />}>
+              <Route index element={<Patient />} />
+            </Route>
+            <Route exact path='/series' element={<PrivateRoute />}>
+              <Route index element={<Series />} />
+            </Route>
+            <Route exact path={'/studies/:id/series'} element={<PrivateRoute />}>
+              <Route index element={<Study />} />
+            </Route>
+            <Route exact path='/instances' element={<PrivateRoute />}>
+              <Route index element={<Instances />} />
+            </Route>
+            <Route exact path={'/series/:id/instances'} element={<PrivateRoute />}>
+              <Route index element={<SingleSeries />} />
+            </Route>
+            {/* <Route exact path='/history' element={<PrivateRoute />}>
               <Route index element={<History />} />
             </Route>
             <Route exact path='/shared' element={<PrivateRoute />}>
               <Route index element={<Shared />} />
             </Route>
-            <Route exact path='/patients' element={<PrivateRoute />}>
-              <Route index element={<Patients />} />
-            </Route>
             <Route exact path='/messages' element={<PrivateRoute />}>
               <Route index element={<Messages />} />
-            </Route>
-            <Route exact path='/series' element={<PrivateRoute />}>
-              <Route index element={<Series />} />
-            </Route>
-            <Route exact path='/instances' element={<PrivateRoute />}>
-              <Route index element={<Instances />} />
-            </Route>
-            <Route exact path={'/patients/:id'} element={<PrivateRoute />}>
-              <Route index element={<Patient />} />
-            </Route>
-            <Route exact path={'/studies/:id'} element={<PrivateRoute />}>
-              <Route index element={<Study />} />
-            </Route>
-            <Route exact path={'/series/:id'} element={<PrivateRoute />}>
-              <Route index element={<SingleSeries />} />
-            </Route>
+            </Route> */}
           </Route>
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register/>} />

@@ -32,36 +32,42 @@ export const DASHBOARD_SIDEBAR_LINKS = [
     icon: <FaBookMedical/>
   },
   {
-    key: 'shared',
-    label: 'Shared',
-    path: '/shared',
-    icon: <FaShareAltSquare/>
+    key: 'series',
+    label: 'Series',
+    path: '/series',
+    icon: <FaBookMedical/>
   },
   {
-    key: 'history',
-    label: 'History',
-    path: '/history',
-    icon: <FaHistory/>
+    key: 'instances',
+    label: 'Instances',
+    path: 'instances',
+    icon: <FaBookMedical/>
   },
-  {
-    key: 'messages',
-    label: 'Messages',
-    path: '/messages',
-    icon: <HiOutlineAnnotation/>
-  }
+  // {
+  //   key: 'history',
+  //   label: 'History',
+  //   path: '/history',
+  //   icon: <FaHistory/>
+  // },
+  // {
+  //   key: 'messages',
+  //   label: 'Messages',
+  //   path: '/messages',
+  //   icon: <HiOutlineAnnotation/>
+  // }
 ]
 
 export const DASHBOARD_SIDEBAR_BOTTOM_LINKS = [
-  {
-    key: 'settings',
-    label: 'Settings',
-    path: '/settings',
-    icon: <HiOutlineCog/>
-  },
-  {
-    key: 'support',
-    label: 'Help & Support',
-    path: '/support',
-    icon: <HiOutlineQuestionMarkCircle/>
-  },
+  // {
+  //   key: 'settings',
+  //   label: 'Settings',
+  //   path: '/settings',
+  //   icon: <HiOutlineCog/>
+  // },
+  // {
+  //   key: 'support',
+  //   label: 'Help & Support',
+  //   path: '/support',
+  //   icon: <HiOutlineQuestionMarkCircle/>
+  // },
 ]

@@ -40,12 +40,14 @@ export default function Patients() {
         <tbody className='px-2'>
           {patients.map((patient) => (
             <tr key={patient.id}>
-              <td>{<Link to={`/patients/${patient.patientID}`}>{patient.patientID}</Link> || 'N/A'}</td>
+              <td>{patient.patientID || 'N/A'}</td>
               <td>{patient.patientName || 'N/A'}</td>
               <td>{patient.patientAge || 'N/A'}</td>
               <td>{patient.patientSex || 'N/A'}</td>
               <td>{patient.patientBirthDate || 'N/A'}</td>
-              <td>...</td>
+              <td>
+                {patient.patientID ? <Link to={`/patients/${patient.patientID}/studies`}>View Studies</Link> : 'N/A'}
+              </td>
             </tr>
           ))}
         </tbody>

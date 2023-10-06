@@ -87,7 +87,7 @@ class File:
 
             # Extract metadata from the DICOM file
             metadata = {
-                "filename": dicom_file.filename if dicom_file.filename else 'untitled',
+                "filename": str(dicom_file.filename).split('/')[-1] if dicom_file.filename else 'untitled',
                 "filepath": os.path.join(DICOM_FOLDER, f'{str(uuid4())}.dcm'),
                 "uploadDate": datetime.now(),
                 "metadata": {

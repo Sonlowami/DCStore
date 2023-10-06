@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { getData } from '../lib/helpers/queryFromApi';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 
 
 export default function Study() {
@@ -10,7 +10,7 @@ export default function Study() {
 
   const getSeries = async () => {
     try {
-      const res = await getData(`/api/v1/study/${id}`);
+      const res = await getData(`/api/v1/studies/${id}/series`);
       const data = res.data;
       setSeries(data);
     } catch (err) {
@@ -30,20 +30,19 @@ export default function Study() {
       <table className='my-3 w-full'>
         <thead className='px-2 bg-sky-100'>
           <tr>
-            <th>Series description</th>
-            <th>Series Number</th>
-            <th>series ID</th>
             <th>Study ID</th>
-            <th>Modality</th>
+            <th>Series ID</th>
+            <th>Series Description</th>
+            <th>Number</th>
           </tr>
         </thead>
         <tbody className='px-2'>
           {series.map((sery) => (
             <tr key={sery.id}>
-              <td>{series.seriesDescription || 'N/A'}</td>
-              <td>{series.seriesNumber || 'N/A'}</td>
-              <td>{series.seriesInstanceUID || 'N/A'}</td>
-              <td>{series.studyID || 'N/A'}</td>
+              <td>{id}</td>
+              <td>{<Link to={`/series/${sery.seriesInstanceUID}`}>{ sery.seriesInstanceUID }</Link> || 'N/A'}</td>
+              <td>{sery.seriesDescription || 'N/A'}</td>
+              <td>{sery.seriesNumber || 'N/A'}</td>
               <td>...</td>
             </tr>
           ))}

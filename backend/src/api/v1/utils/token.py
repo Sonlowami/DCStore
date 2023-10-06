@@ -23,6 +23,7 @@ def authorize(f):
             assert not redis_client.get(f'blacklist:{token}')
             email: str = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])['email']
             return f(email, *args, **kwargs)
-        except Exception:
+        except Exception as e:
+            print(e)
             return ({'error': 'Invalid token'}), 401
     return decorator

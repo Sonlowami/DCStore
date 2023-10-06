@@ -1,6 +1,7 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { getData } from '../lib/helpers/queryFromApi';
+import { Link } from 'react-router-dom';
 
 
 export default function Studies() {
@@ -28,20 +29,20 @@ export default function Studies() {
       <table className='my-3 w-full'>
         <thead className='px-2 bg-sky-100'>
           <tr>
-            <th>Study description</th>
-            <th>Study Date</th>
             <th>Study ID</th>
             <th>Patient ID</th>
+            <th>Study description</th>
+            <th>Study Date</th>
             <th>Series</th>
           </tr>
         </thead>
         <tbody className='px-2'>
           {studies.map((study) => (
             <tr key={study.id}>
+              <td>{<Link to={`/studies/${study.studyInstanceUID}`}>{study.studyInstanceUID}</Link> || 'N/A'}</td>
+              <td>{<Link to={`/studies/${study.studyPatientID}`}>{study.studyPatientID}</Link> || 'N/A'}</td>
               <td>{study.studyDescription || 'N/A'}</td>
               <td>{new Date(study.studyDate).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) || 'N/A'}</td>
-              <td>{study.studyInstanceUID || 'N/A'}</td>
-              <td>{study.patientID || 'N/A'}</td>
               <td>...</td>
             </tr>
           ))}

@@ -13,7 +13,7 @@ class RecentFiles:
         key = f"recent_files:{user_id}"
         num_files = redis_client.hlen(key)
         if num_files >= RecentFiles.MAX_STACK:
-            oldest_file = redis_client.hgetall(key, 1)
+            oldest_file = redis_client.hkeys(key)[0]
             redis_client.hdel(key, oldest_file)
         data = json.dumps(info)
         redis_client.hset(key, file_id, data)

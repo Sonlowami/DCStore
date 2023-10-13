@@ -20,10 +20,20 @@ def authorize(f):
         """Inner function to handle the be returned as a decorator"""
         token: str = request.headers.get('x-token', '')
         try:
-            assert not redis_client.get(f'blacklist:{token}')
-            email: str = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])['email']
+            if redis_client.get(f'blacklist:{token}'):
+                return jsonify({'error': 'Token has been blacklisted'}), 401
+            payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            email = payload.get('email')
+            if not email:
+                return jsonify({'error': 'Invalid token payload'}), 401
             return f(email, *args, **kwargs)
+        except jwt.exceptions.ExpiredSignatureError:
+            return jsonify({'error': 'Token has expired'}), 401
+        except jwt.exceptions.InvalidSignatureError:
+            return jsonify({'error': 'Invalid token signature'}), 401
+        except jwt.exceptions.DecodeError:
+            return jsonify({'error': 'Invalid token encoding'}), 401
         except Exception as e:
             print(e)
-            return ({'error': 'Invalid token'}), 401
+            return jsonify({'error': 'Something went wrong in view'}), 500
     return decorator

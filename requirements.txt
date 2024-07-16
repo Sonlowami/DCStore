@@ -217,3 +217,4 @@ xdg==5
 xkit==0.0.0
 zipp==1.0.0
 
+setuptools>=70.0.0 # not directly required, pinned by Snyk to avoid a vulnerability

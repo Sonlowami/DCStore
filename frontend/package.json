@@ -27,7 +27,7 @@
     "react-icons": "^4.11.0",
     "react-router-dom": "^6.16.0",
     "recharts": "^2.8.0",
-    "sinon": "^16.0.0"
+    "sinon": "^19.0.0"
   },
   "devDependencies": {
     "@babel/preset-react": "^7.22.15",

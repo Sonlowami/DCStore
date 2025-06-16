@@ -22,7 +22,7 @@ duplicity==0.8.21
 fasteners==0.14.1
 flasgger==0.9.7.1
 Flask==2.3.3
-Flask-Cors==4.0.0
+Flask-Cors==6.0.0
 Flask-Mail==0.9.1
 Flask-PyMongo==2.3.0
 future==0.18.2
@@ -88,7 +88,7 @@ PyYAML==5.4.1
 readme-renderer==40.0
 referencing==0.30.2
 reportlab==3.6.8
-requests==2.25.1
+requests==2.32.4
 requests-toolbelt==1.0.0
 rfc3986==2.0.0
 rich==13.4.2
